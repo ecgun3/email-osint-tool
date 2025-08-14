@@ -1,6 +1,88 @@
-<!-- # Result display -->
+{% extends 'base.html' %}
+{% block content %}
+	<div class="row">
+		<div class="col-lg-8">
+			<div class="card shadow-sm mb-3">
+				<div class="card-body">
+					<h5 class="card-title">Results</h5>
+					<div class="text-muted small">Generated at {{ timestamp }}</div>
+					<hr />
+					<div class="mb-2"><strong>Resolved Domain:</strong> {{ results.resolved_domain or 'n/a' }}</div>
+					{% if results.mx %}
+						<h6>MX Records</h6>
+						{% if results.mx.error %}
+							<div class="alert alert-warning">{{ results.mx.error }}</div>
+						{% else %}
+							<ul class="list-group list-group-flush">
+							{% for mx in results.mx.mx_records %}
+								<li class="list-group-item d-flex justify-content-between align-items-center">
+									<span>{{ mx.exchange }}</span>
+									<span class="badge rounded-pill text-bg-secondary">Pref {{ mx.preference }}</span>
+								</li>
+							{% endfor %}
+							</ul>
+							<div class="mt-2">Provider: <span class="badge bg-info text-dark">{{ results.mx.provider }}</span></div>
+							{% if results.mx.warnings and results.mx.warnings|length %}
+								<div class="mt-2">
+									{% for w in results.mx.warnings %}
+										<div class="small text-warning">⚠️ {{ w }}</div>
+									{% endfor %}
+								</div>
+							{% endif %}
+						{% endif %}
+					{% endif %}
 
-<!--
-Sonuç gösterim sayfası - Analiz sonuçlarını görüntüler
-Result display page - Shows analysis results
--->
+					{% if results.builtwith %}
+						<h6 class="mt-4">BuiltWith</h6>
+						{% if results.builtwith.error %}
+							<div class="alert alert-warning">{{ results.builtwith.error }}</div>
+						{% else %}
+							{% if results.builtwith.summary %}
+								<div class="row">
+								{% for category, items in results.builtwith.summary.items() %}
+									<div class="col-md-6 mb-2">
+										<div class="border rounded p-2 h-100">
+											<div class="fw-semibold">{{ category }}</div>
+											<div class="small text-muted">{{ items|join(', ') }}</div>
+										</div>
+									</div>
+								{% endfor %}
+								</div>
+							{% endif %}
+						{% endif %}
+					{% endif %}
+
+					{% if results.holehe %}
+						<h6 class="mt-4">Holehe</h6>
+						{% if results.holehe.error %}
+							<div class="alert alert-warning">{{ results.holehe.error }}</div>
+						{% else %}
+							<div class="small text-muted mb-2">Command: <code>{{ results.holehe.command }}</code></div>
+							<pre class="bg-light p-2 rounded small">{{ results.holehe.data | tojson(indent=2) }}</pre>
+						{% endif %}
+					{% endif %}
+
+					{% if results.email_patterns and results.email_patterns.patterns %}
+						<h6 class="mt-4">Email Patterns</h6>
+						<ul class="list-group list-group-flush">
+						{% for item in results.email_patterns.patterns %}
+							<li class="list-group-item d-flex justify-content-between align-items-center">
+								<span>{{ item.label }}</span>
+								<span class="font-monospace">{{ item.email }}</span>
+							</li>
+						{% endfor %}
+						</ul>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+		<div class="col-lg-4">
+			<div class="card shadow-sm mb-3">
+				<div class="card-body">
+					<h6 class="card-title">Raw JSON</h6>
+					<pre class="bg-light p-2 rounded small">{{ results | tojson(indent=2) }}</pre>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

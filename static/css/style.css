@@ -1,4 +1,41 @@
-/*
-Stil dosyası - Web arayüzü görsel tasarımı
-Style file - Web interface visual design
-*/
+body {
+	background-color: #0b1220;
+	color: #e9eef7;
+}
+
+.card {
+	background-color: #101a2b;
+	border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.card .card-title {
+	color: #f3f6fc;
+}
+
+.form-control, .form-select {
+	background-color: #0e1726;
+	border-color: rgba(255, 255, 255, 0.1);
+	color: #e9eef7;
+}
+
+.form-control:focus {
+	box-shadow: 0 0 0 .25rem rgba(13, 110, 253, .25);
+}
+
+pre {
+	max-height: 420px;
+	overflow: auto;
+}
+
+.navbar-dark .navbar-brand {
+	color: #e9eef7;
+}
+
+.badge.text-bg-secondary {
+	background-color: #2b3750 !important;
+}
+
+.badge.bg-info.text-dark {
+	background-color: #17a2b8 !important;
+	color: #0b1220 !important;
+}
