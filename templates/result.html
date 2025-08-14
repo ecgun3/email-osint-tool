@@ -16,6 +16,7 @@
 						{% if results.mx.error %}
 							<div class="alert alert-warning">{{ results.mx.error }}</div>
 						{% else %}
+							{% if results.mx.mx_records and results.mx.mx_records|length > 0 %}
 							<ul class="list-group list-group-flush">
 							{% for mx in results.mx.mx_records %}
 								<li class="list-group-item d-flex justify-content-between align-items-center">
@@ -24,6 +25,9 @@
 								</li>
 							{% endfor %}
 							</ul>
+							{% else %}
+							<div class="alert alert-info">No MX records found.</div>
+							{% endif %}
 							<div class="mt-2">Provider: <span class="badge bg-info text-dark">{{ results.mx.provider }}</span></div>
 							{% if results.mx.warnings and results.mx.warnings|length %}
 								<div class="mt-2">
@@ -40,7 +44,7 @@
 						{% if results.builtwith.error %}
 							<div class="alert alert-warning">{{ results.builtwith.error }}</div>
 						{% else %}
-							{% if results.builtwith.summary %}
+							{% if results.builtwith.summary and results.builtwith.summary|length %}
 								<div class="row">
 								{% for category, items in results.builtwith.summary.items() %}
 									<div class="col-md-6 mb-2">
@@ -51,6 +55,8 @@
 									</div>
 								{% endfor %}
 								</div>
+							{% else %}
+								<div class="alert alert-info">No BuiltWith data (missing API key or no results).</div>
 							{% endif %}
 						{% endif %}
 					{% endif %}
