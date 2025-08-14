@@ -32,6 +32,17 @@ class Config:
 	host: str = os.getenv("HOST", "0.0.0.0")
 	port: int = _get_int("PORT", 5000)
 	templates_auto_reload: bool = _get_bool("TEMPLATES_AUTO_RELOAD", True)
+	# SMTP settings for sending training emails
+	smtp_host: Optional[str] = os.getenv("SMTP_HOST")
+	smtp_port: int = _get_int("SMTP_PORT", 587)
+	smtp_username: Optional[str] = os.getenv("SMTP_USERNAME")
+	smtp_password: Optional[str] = os.getenv("SMTP_PASSWORD")
+	smtp_use_tls: bool = _get_bool("SMTP_USE_TLS", True)
+	smtp_use_ssl: bool = _get_bool("SMTP_USE_SSL", False)
+	smtp_from: Optional[str] = os.getenv("SMTP_FROM")
+	# Mailbox verification (SMTP probe) toggle
+	probe_smtp_enable: bool = _get_bool("PROBE_SMTP_ENABLE", True)
+	probe_mail_from: Optional[str] = os.getenv("PROBE_SMTP_MAIL_FROM")
 
 
 def get_config() -> Config:

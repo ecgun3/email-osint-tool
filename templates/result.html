@@ -113,6 +113,18 @@
 					{% if results.training_email.notes and results.training_email.notes.context %}
 						<div class="small text-muted">{{ results.training_email.notes.context }}</div>
 					{% endif %}
+					{% if results.mailbox_probe %}
+						<div class="mt-3">
+							<div class="fw-semibold">Mailbox Probe</div>
+							<pre class="p-2 rounded small">{{ results.mailbox_probe | tojson(indent=2) }}</pre>
+						</div>
+					{% endif %}
+					{% if results.mail_send %}
+						<div class="mt-3">
+							<div class="fw-semibold">Mail Send</div>
+							<pre class="p-2 rounded small">{{ results.mail_send | tojson(indent=2) }}</pre>
+						</div>
+					{% endif %}
 				</div>
 			</div>
 			<div class="card shadow-sm mb-3">
