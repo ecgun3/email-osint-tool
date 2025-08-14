@@ -1,1 +1,6 @@
-# Python Dependincies
+Flask>=3.0.0,<4.0.0
+requests>=2.32.0,<3.0.0
+dnspython>=2.6.1,<3.0.0
+python-dotenv>=1.0.1,<2.0.0
+# Optional: install holehe to enable live scans via subprocess
+holehe>=1.61.2
