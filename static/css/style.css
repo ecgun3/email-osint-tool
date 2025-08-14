@@ -47,3 +47,17 @@ pre {
 .btn-outline-light:hover {
 	background-color: rgba(255,255,255,.1) !important;
 }
+
+/* Make code/JSON blocks readable */
+.card pre,
+.card pre.bg-light {
+	background-color: #0e1726 !important;
+	color: #e9eef7 !important;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* List items should match dark card */
+.list-group-item {
+	background-color: #101a2b !important;
+	border-color: rgba(255, 255, 255, 0.1) !important;
+}
