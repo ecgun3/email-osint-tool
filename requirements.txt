@@ -1,1 +1,8 @@
-# Python Dependincies
+Flask==2.3.3
+python-dotenv==1.0.0
+dnspython==2.4.2
+requests==2.31.0
+validators==0.22.0
+
+# Python bağımlılıkları - Proje için gerekli Python paketleri
+# Python dependencies - Required Python packages for the project

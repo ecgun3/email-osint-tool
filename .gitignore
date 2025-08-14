@@ -1,0 +1,24 @@
+# Git yok sayma listesi - Versiyon kontrolüne dahil edilmeyecek dosyalar
+# Git ignore list - Files not to be included in version control
+
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+.venv/
+
+# Environment
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
