@@ -4,7 +4,10 @@
 		<div class="col-lg-8">
 			<div class="card shadow-sm mb-3">
 				<div class="card-body">
-					<h5 class="card-title">Results</h5>
+					<div class="d-flex justify-content-between align-items-center">
+						<h5 class="card-title mb-0">Results</h5>
+						<a href="{{ url_for('index') }}" class="btn btn-outline-light btn-sm">← Back</a>
+					</div>
 					<div class="text-muted small">Generated at {{ timestamp }}</div>
 					<hr />
 					<div class="mb-2"><strong>Resolved Domain:</strong> {{ results.resolved_domain or 'n/a' }}</div>

@@ -8,8 +8,8 @@ body {
 	border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.card .card-title {
-	color: #f3f6fc;
+.card, .card .card-title, .card .card-body, .card p, .card label, .card h5, .card h6, .card .text-muted, .list-group-item {
+	color: #ffffff !important;
 }
 
 .form-control, .form-select {
@@ -38,4 +38,12 @@ pre {
 .badge.bg-info.text-dark {
 	background-color: #17a2b8 !important;
 	color: #0b1220 !important;
+}
+
+.btn-outline-light {
+	border-color: rgba(255,255,255,.5) !important;
+	color: #ffffff !important;
+}
+.btn-outline-light:hover {
+	background-color: rgba(255,255,255,.1) !important;
 }
