@@ -6,6 +6,7 @@ from core.mx_analyzer import analyze_mx
 from core.builtwith_client import fetch_builtwith
 from core.holehe_runner import run_holehe
 from core.email_patterns import generate_email_patterns
+from core.training_template import generate_training_email_template
 from utils.helpers import extract_domain, now_utc_iso
 
 
@@ -54,6 +55,20 @@ def analyze_workflow(
 		results["email_patterns"] = generate_email_patterns(
 			first_name or "", last_name or "", resolved_domain
 		)
+	# Training email template is always generated for awareness use
+	provider = None
+	if isinstance(results.get("mx"), dict):
+		provider = results["mx"].get("provider")
+	builtwith_summary = None
+	if isinstance(results.get("builtwith"), dict):
+		builtwith_summary = results["builtwith"].get("summary")
+	results["training_email"] = generate_training_email_template(
+		first_name,
+		last_name,
+		resolved_domain,
+		provider,
+		builtwith_summary,
+	)
 
 	results["meta"]["finished_at"] = now_utc_iso()
 	results["meta"]["errors"] = errors

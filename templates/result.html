@@ -90,11 +90,31 @@
 							</li>
 						{% endfor %}
 						</ul>
+					{% else %}
+						<h6 class="mt-4">Email Patterns</h6>
+						<div class="alert alert-info">Provide first and last name to generate personalized email patterns.</div>
 					{% endif %}
 				</div>
 			</div>
 		</div>
 		<div class="col-lg-4">
+			<div class="card shadow-sm mb-3">
+				<div class="card-body">
+					<h6 class="card-title">Training Email (Awareness)</h6>
+					<div class="mb-2"><strong>From:</strong> <span class="font-monospace">{{ results.training_email.from }}</span></div>
+					{% if results.training_email.to_example %}
+						<div class="mb-2"><strong>To (example):</strong> <span class="font-monospace">{{ results.training_email.to_example }}</span></div>
+					{% endif %}
+					<div class="mb-2"><strong>Subject:</strong> {{ results.training_email.subject }}</div>
+					<details class="mb-2" open>
+						<summary>Preview</summary>
+						<pre class="p-2 rounded small">{{ results.training_email.body_text }}</pre>
+					</details>
+					{% if results.training_email.notes and results.training_email.notes.context %}
+						<div class="small text-muted">{{ results.training_email.notes.context }}</div>
+					{% endif %}
+				</div>
+			</div>
 			<div class="card shadow-sm mb-3">
 				<div class="card-body">
 					<h6 class="card-title">Raw JSON</h6>
