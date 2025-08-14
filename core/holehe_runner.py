@@ -55,6 +55,8 @@ def run_holehe(email: str, timeout_seconds: int = 60) -> Dict[str, Any]:
 		[holehe_bin, email, "-o", "json"],
 		[holehe_bin, email, "--output", "json"],
 		[holehe_bin, "-j", email],
+		# Fallback: run without JSON flags to capture human-readable output
+		[holehe_bin, email],
 	]
 
 	last_result: Dict[str, Any] = {"error": "holehe produced no JSON output"}
@@ -77,6 +79,16 @@ def run_holehe(email: str, timeout_seconds: int = 60) -> Dict[str, Any]:
 					"stderr": proc.stderr[-2000:],
 					"returncode": proc.returncode,
 				}
+			# If not JSON, but we have any stdout/stderr, return it so UI can show it
+			if proc.stdout or proc.stderr:
+				last_result = {
+					"ok": False,
+					"command": " ".join(shlex.quote(c) for c in cmd),
+					"stdout": proc.stdout[-4000:],
+					"stderr": proc.stderr[-4000:],
+					"returncode": proc.returncode,
+				}
+				continue
 			last_result = {
 				"ok": False,
 				"command": " ".join(shlex.quote(c) for c in cmd),
