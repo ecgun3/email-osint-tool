@@ -51,7 +51,7 @@ def generate_training_email_template(
 	text_lines = [
 		greeting,
 		"\nWe are running a scheduled security awareness exercise. Please take a moment to confirm your preferred contact method and acknowledge the policy update.",
-		"\nOpen the training portal (internal): [training_link]",
+		"\nOpen the training portal (internal): https://www.google.com",
 		"\nThis simulation is for internal training only. If you did not expect this message, report it to the security team.",
 		"\nThanks,",
 		"Security Awareness Team",
@@ -62,7 +62,7 @@ def generate_training_email_template(
 	body_html = (
 		f"<p>{greeting}</p>"
 		"<p>We are running a scheduled security awareness exercise. Please take a moment to confirm your preferred contact method and acknowledge the policy update.</p>"
-		"<p>Open the training portal (internal): <a href=\"https://www.google.com/\">https://www.google.com/</a></p>"
+		"<p>Open the training portal (internal): <a href=\"https://www.google.com\" target=\"_blank\" rel=\"noopener noreferrer\">Google</a></p>"
 		"<p style=\"font-size:12px;color:#999\">This simulation is for internal training only. If you did not expect this message, report it to the security team.</p>"
 		f"<p>Thanks,<br/>Security Awareness Team<br/>{from_address_domain}</p>"
 		

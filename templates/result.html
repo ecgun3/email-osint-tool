@@ -130,6 +130,12 @@
 					{% endif %}
 				</div>
 			</div>
+			<details class="mb-2">
+  <summary>Preview (HTML)</summary>
+  <div class="p-2 rounded small bg-light text-dark">
+    {% if results.training_email.body_html %}{{ results.training_email.body_html | safe }}{% else %}<em>No HTML body</em>{% endif %}
+  </div>
+</details>
 			<div class="card shadow-sm mb-3">
 				<div class="card-body">
 					<div class="d-flex justify-content-between align-items-center">
