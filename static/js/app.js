@@ -18,4 +18,31 @@ document.addEventListener("DOMContentLoaded", function () {
 			window.open(url, "_blank");
 		});
 	}
+
+	// Copy to clipboard buttons
+	document.querySelectorAll(".copy-btn").forEach((btn) => {
+		btn.addEventListener("click", async (e) => {
+			e.preventDefault();
+			const target = btn.getAttribute("data-copy-target");
+			if (!target) return;
+			const el = document.querySelector(target);
+			if (!el) return;
+			const text = el.innerText || el.textContent || "";
+			try {
+				await navigator.clipboard.writeText(text);
+				btn.textContent = "Copied!";
+				setTimeout(() => (btn.textContent = "Copy"), 1500);
+			} catch (err) {
+				// Fallback
+				const area = document.createElement("textarea");
+				area.value = text;
+				document.body.appendChild(area);
+				area.select();
+				document.execCommand("copy");
+				document.body.removeChild(area);
+				btn.textContent = "Copied!";
+				setTimeout(() => (btn.textContent = "Copy"), 1500);
+			}
+		});
+	});
 });

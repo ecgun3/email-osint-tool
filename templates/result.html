@@ -107,8 +107,11 @@
 					{% endif %}
 					<div class="mb-2"><strong>Subject:</strong> {{ results.training_email.subject }}</div>
 					<details class="mb-2" open>
-						<summary>Preview</summary>
-						<pre class="p-2 rounded small">{{ results.training_email.body_text }}</pre>
+						<div class="d-flex justify-content-between align-items-center">
+							<summary class="mb-0">Preview</summary>
+							<button class="btn btn-outline-light btn-sm copy-btn" data-copy-target="#training-body-pre">Copy</button>
+						</div>
+						<pre id="training-body-pre" class="p-2 rounded small">{{ results.training_email.body_text }}</pre>
 					</details>
 					{% if results.training_email.notes and results.training_email.notes.context %}
 						<div class="small text-muted">{{ results.training_email.notes.context }}</div>
@@ -129,8 +132,11 @@
 			</div>
 			<div class="card shadow-sm mb-3">
 				<div class="card-body">
-					<h6 class="card-title">Raw JSON</h6>
-					<pre class="bg-light p-2 rounded small">{{ results | tojson(indent=2) }}</pre>
+					<div class="d-flex justify-content-between align-items-center">
+						<h6 class="card-title mb-0">Raw JSON</h6>
+						<button class="btn btn-outline-light btn-sm copy-btn" data-copy-target="#raw-json-pre">Copy</button>
+					</div>
+					<pre id="raw-json-pre" class="bg-light p-2 rounded small">{{ results | tojson(indent=2) }}</pre>
 				</div>
 			</div>
 		</div>
