@@ -1,6 +1,7 @@
 from typing import Any, Dict, List
 
 import dns.resolver
+from time import perf_counter
 
 
 _PROVIDER_MAP = [
@@ -42,6 +43,7 @@ def analyze_mx(domain: str, timeout_seconds: int = 10) -> Dict[str, Any]:
 	warnings: List[str] = []
 
 	try:
+		start_ts = perf_counter()
 		answers = dns.resolver.resolve(domain, "MX", lifetime=timeout_seconds)
 		for rdata in sorted(answers, key=lambda r: int(r.preference)):
 			preference = int(getattr(rdata, "preference", 0))
@@ -65,4 +67,5 @@ def analyze_mx(domain: str, timeout_seconds: int = 10) -> Dict[str, Any]:
 		"mx_hosts": mx_hosts,
 		"provider": provider,
 		"warnings": warnings,
+		"elapsedMs": int((perf_counter() - start_ts) * 1000) if mx_records else None,
 	}

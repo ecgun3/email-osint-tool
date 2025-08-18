@@ -1,5 +1,6 @@
 from typing import Any, Dict, Optional, List
 import requests
+from time import perf_counter
 
 
 def _simplify_builtwith(response_json: Any) -> Dict[str, Any]:
@@ -62,15 +63,19 @@ def fetch_builtwith(domain: str, api_key: str, timeout_seconds: int = 15) -> Dic
 	url = "https://api.builtwith.com/v21/api.json"
 	params = {"KEY": api_key, "LOOKUP": domain}
 	try:
+		start_ts = perf_counter()
 		resp = requests.get(url, params=params, timeout=timeout_seconds)
 		if resp.status_code != 200:
 			return {
 				"error": f"BuiltWith API returned status {resp.status_code}",
 				"status_code": resp.status_code,
 				"text": resp.text[:2000],
+				"elapsedMs": int((perf_counter() - start_ts) * 1000),
 			}
 		data: Any = resp.json()
-		return _simplify_builtwith(data)
+		result = _simplify_builtwith(data)
+		result["elapsedMs"] = int((perf_counter() - start_ts) * 1000)
+		return result
 	except requests.exceptions.Timeout:
 		return {"error": "BuiltWith request timed out"}
 	except requests.exceptions.RequestException as exc:  # noqa: BLE001

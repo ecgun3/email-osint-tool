@@ -5,6 +5,7 @@ import subprocess
 import os
 import shutil
 import re
+from time import perf_counter
 from pathlib import Path
 
 
@@ -160,10 +161,12 @@ def run_holehe(email: str, timeout_seconds: int = 60, prefer_text: bool = False)
 				timeout=timeout_seconds,
 				text=True,
 			)
-			# Strip ANSI before any parsing/display
+			# Strip ANSI before any parsing/display and measure elapsed
+			start_ts = perf_counter()
 			clean_stdout = _strip_ansi(proc.stdout)
 			clean_stderr = _strip_ansi(proc.stderr)
 			parsed = _try_parse_json(clean_stdout)
+			elapsed_ms = int((perf_counter() - start_ts) * 1000)
 			if parsed is not None:
 				return {
 					"ok": True,
@@ -171,6 +174,7 @@ def run_holehe(email: str, timeout_seconds: int = 60, prefer_text: bool = False)
 					"data": parsed,
 					"stderr": clean_stderr[-2000:],
 					"returncode": proc.returncode,
+					"elapsedMs": elapsed_ms,
 				}
 			# If not JSON, but we have any stdout/stderr, return it so UI can show it
 			if clean_stdout or clean_stderr:
@@ -182,6 +186,7 @@ def run_holehe(email: str, timeout_seconds: int = 60, prefer_text: bool = False)
 					"stderr": clean_stderr[-4000:],
 					"parsed": parsed_symbols if any(parsed_symbols.values()) else None,
 					"returncode": proc.returncode,
+					"elapsedMs": elapsed_ms,
 				}
 				continue
 			last_result = {
@@ -190,6 +195,7 @@ def run_holehe(email: str, timeout_seconds: int = 60, prefer_text: bool = False)
 				"stdout": clean_stdout[-2000:],
 				"stderr": clean_stderr[-2000:],
 				"returncode": proc.returncode,
+				"elapsedMs": elapsed_ms,
 			}
 		except FileNotFoundError:
 			return {"error": f"holehe binary not found: {cmd[0]}", "hint": "Set HOLEHE_BIN env var to the holehe executable path."}

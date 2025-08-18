@@ -44,6 +44,9 @@
 						{% if results.builtwith.error %}
 							<div class="alert alert-warning">{{ results.builtwith.error }}</div>
 						{% else %}
+							{% if results.builtwith.elapsedMs %}
+								<div class="small text-muted mb-2">Elapsed: {{ results.builtwith.elapsedMs }} ms</div>
+							{% endif %}
 							{% if results.builtwith.flat and results.builtwith.flat|length %}
 								<ul class="list-group list-group-flush">
 								{% for tech in results.builtwith.flat %}
@@ -63,7 +66,7 @@
 						{% if results.holehe.error %}
 							<div class="alert alert-warning">{{ results.holehe.error }}</div>
 						{% else %}
-							<div class="small text-muted mb-2">Command: <code>{{ results.holehe.command }}</code></div>
+							<div class="small text-muted mb-2">Command: <code>{{ results.holehe.command }}</code>{% if results.holehe.elapsedMs %} · {{ results.holehe.elapsedMs }} ms{% endif %}</div>
 							{% if results.holehe.ok and results.holehe.data is defined %}
 								<pre class="bg-light p-2 rounded small">{{ results.holehe.data | tojson(indent=2) }}</pre>
 							{% elif results.holehe.parsed is defined and results.holehe.parsed %}
