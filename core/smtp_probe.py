@@ -2,6 +2,7 @@ from typing import Any, Dict, List, Optional
 import smtplib
 import dns.resolver
 import uuid
+from datetime import datetime
 
 
 def _resolve_mx(domain: str, timeout_seconds: int = 10) -> List[str]:
@@ -35,6 +36,7 @@ def probe_mailbox_exists(
 		return {"ok": False, "error": "Invalid recipient email"}
 
 	try:
+		trace: List[str] = []
 		mx_hosts = _resolve_mx(recipient_domain, timeout_seconds)
 		if not mx_hosts:
 			return {"ok": False, "error": "No MX hosts for recipient domain"}
@@ -42,19 +44,25 @@ def probe_mailbox_exists(
 		for host in mx_hosts:
 			server: Optional[smtplib.SMTP] = None
 			try:
+				trace.append(f"[{datetime.utcnow().isoformat()}Z] connect {host}:25")
 				server = smtplib.SMTP(host, 25, timeout=timeout_seconds)
+				trace.append(f"[{datetime.utcnow().isoformat()}Z] connected {host}")
 				server.ehlo_or_helo_if_needed()
 				code, _ = server.mail(mail_from)
+				trace.append(f"MAIL FROM => {code}")
 				if code >= 400:
 					summary_errors.append(f"MAIL FROM rejected on {host} ({code})")
+					trace.append(f"MAIL FROM rejected on {host} ({code})")
 					server.quit()
 					continue
 				# RCPT to target
 				t_code, t_reply = server.rcpt(email)
+				trace.append(f"RCPT TO target => {t_code} { _reply_to_str(t_reply)[:120] }")
 				# RCPT to random to detect catch-all
 				random_local = f"verify-{uuid.uuid4().hex[:16]}"
 				random_addr = f"{random_local}@{recipient_domain}"
 				r_code, r_reply = server.rcpt(random_addr)
+				trace.append(f"RCPT TO random => {r_code} { _reply_to_str(r_reply)[:120] }")
 				server.quit()
 
 				# Evaluate
@@ -67,6 +75,7 @@ def probe_mailbox_exists(
 						"target": {"code": t_code, "reply": _reply_to_str(t_reply)},
 						"random": {"code": r_code, "reply": _reply_to_str(r_reply)},
 						"catch_all": True,
+						"trace": trace,
 					}
 				if 250 <= t_code < 300 and (r_code >= 500 and r_code < 600):
 					return {
@@ -77,6 +86,7 @@ def probe_mailbox_exists(
 						"target": {"code": t_code, "reply": _reply_to_str(t_reply)},
 						"random": {"code": r_code, "reply": _reply_to_str(r_reply)},
 						"catch_all": False,
+						"trace": trace,
 					}
 				if (t_code >= 500 and t_code < 600):
 					return {
@@ -87,6 +97,7 @@ def probe_mailbox_exists(
 						"target": {"code": t_code, "reply": _reply_to_str(t_reply)},
 						"random": {"code": r_code, "reply": _reply_to_str(r_reply)},
 						"catch_all": False,
+						"trace": trace,
 					}
 				# Indeterminate (4xx, or 2xx/2xx but policy unknown)
 				return {
@@ -95,16 +106,18 @@ def probe_mailbox_exists(
 					"mx_host": host,
 					"target": {"code": t_code, "reply": _reply_to_str(t_reply)},
 					"random": {"code": r_code, "reply": _reply_to_str(r_reply)},
+					"trace": trace,
 				}
 			except Exception as exc:  # noqa: BLE001
 				summary_errors.append(f"{host}: {str(exc)}")
+				trace.append(f"{host} exception: {str(exc)}")
 				try:
 					if server:
 						server.quit()
 				except Exception:
 					pass
 				continue
-		return {"ok": False, "error": "; ".join(summary_errors) or "Unknown error"}
+		return {"ok": False, "error": "; ".join(summary_errors) or "Unknown error", "trace": trace}
 	except dns.resolver.NXDOMAIN:
 		return {"ok": False, "error": "Recipient domain does not exist"}
 	except dns.resolver.NoAnswer:
