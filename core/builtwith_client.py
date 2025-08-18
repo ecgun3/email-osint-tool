@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from typing import Any, Dict, Optional, List
 import requests
 from time import perf_counter
@@ -83,15 +82,11 @@ def fetch_builtwith(domain: str, api_key: str, timeout_seconds: int = 15) -> Dic
 		return {"error": str(exc)}
 	except ValueError:
 		return {"error": "Failed to parse BuiltWith JSON response"}
-=======
-from typing import Any, Dict
 
 
 def fetch_technology_stack(domain: str) -> Dict[str, Any]:
-    """Query BuiltWith (or similar) to fetch technology stack for the domain.
+	"""Compatibility wrapper for unit tests to monkeypatch.
 
-    Intentionally left unimplemented; provide concrete behavior in production code.
-    Tests should monkeypatch this function.
-    """
-    raise NotImplementedError("fetch_technology_stack must be implemented")
->>>>>>> 6f0ef32 (Add core modules and tests for OSINT email simulation pipeline)
+	Production code should use fetch_builtwith with an API key.
+	"""
+	return {"domain": domain, "note": "use fetch_builtwith for real data"}
