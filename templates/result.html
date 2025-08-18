@@ -130,10 +130,19 @@
 											{% if item.holehe.parsed.positive and item.holehe.parsed.positive|length %}
 												<div class="small">Matches: {{ item.holehe.parsed.positive | map(attribute='site') | list | join(', ') }}</div>
 											{% endif %}
+											{% if item.holehe.stdout %}
+												<details class="small"><summary>Raw</summary><pre class="bg-light p-2 rounded small">{{ item.holehe.stdout }}</pre></details>
+											{% endif %}
+											{% if item.holehe.stderr %}
+												<details class="mt-2 small"><summary>stderr</summary><pre class="bg-light p-2 rounded small">{{ item.holehe.stderr }}</pre></details>
+											{% endif %}
 										{% elif item.holehe and item.holehe.ok and item.holehe.data %}
 											<pre class="bg-light p-2 rounded small">{{ item.holehe.data | tojson(indent=2) }}</pre>
 										{% elif item.holehe and item.holehe.stdout %}
 											<details class="small"><summary>Raw</summary><pre class="bg-light p-2 rounded small">{{ item.holehe.stdout }}</pre></details>
+											{% if item.holehe.stderr %}
+												<details class="mt-2 small"><summary>stderr</summary><pre class="bg-light p-2 rounded small">{{ item.holehe.stderr }}</pre></details>
+											{% endif %}
 										{% else %}
 											<div class="small text-muted">No output</div>
 										{% endif %}
