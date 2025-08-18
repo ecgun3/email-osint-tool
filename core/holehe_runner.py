@@ -102,18 +102,21 @@ def _parse_symbol_lines(stdout: str) -> Dict[str, Any]:
 	}
 
 
-def run_holehe(email: str, timeout_seconds: int = 60) -> Dict[str, Any]:
+def run_holehe(email: str, timeout_seconds: int = 60, prefer_text: bool = False) -> Dict[str, Any]:
 	holehe_bin = _resolve_holehe_bin()
 	if not holehe_bin:
 		return {"error": "holehe is not installed or not in PATH. Install with: pip install 'holehe==1.61'", "hint": "You can set HOLEHE_BIN to the full path of the holehe binary."}
 
-	commands: List[List[str]] = [
-		[holehe_bin, email, "-o", "json"],
-		[holehe_bin, email, "--output", "json"],
-		[holehe_bin, "-j", email],
-		# Fallback: run without JSON flags to capture human-readable output
-		[holehe_bin, email],
-	]
+	if prefer_text:
+		commands: List[List[str]] = [[holehe_bin, email]]
+	else:
+		commands: List[List[str]] = [
+			[holehe_bin, email, "-o", "json"],
+			[holehe_bin, email, "--output", "json"],
+			[holehe_bin, "-j", email],
+			# Fallback: run without JSON flags to capture human-readable output
+			[holehe_bin, email],
+		]
 
 	last_result: Dict[str, Any] = {"error": "holehe produced no JSON output"}
 	for cmd in commands:

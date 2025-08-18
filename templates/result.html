@@ -116,6 +116,33 @@
 						{% endif %}
 					{% endif %}
 
+					{% if results.pattern_holehe and results.pattern_holehe.results %}
+						<h6 class="mt-4">Pattern Candidates (Holehe)</h6>
+						<div class="row">
+							{% for item in results.pattern_holehe.results %}
+								<div class="col-md-6 mb-2">
+									<div class="border rounded p-2 h-100">
+										<div class="fw-semibold">{{ item.email }}</div>
+										{% if item.holehe and item.holehe.parsed %}
+											<div class="small text-muted">+
+												{{ item.holehe.parsed.totals.positive }} / - {{ item.holehe.parsed.totals.negative }} / x {{ item.holehe.parsed.totals.unknown }}
+											</div>
+											{% if item.holehe.parsed.positive and item.holehe.parsed.positive|length %}
+												<div class="small">Matches: {{ item.holehe.parsed.positive | map(attribute='site') | list | join(', ') }}</div>
+											{% endif %}
+										{% elif item.holehe and item.holehe.ok and item.holehe.data %}
+											<pre class="bg-light p-2 rounded small">{{ item.holehe.data | tojson(indent=2) }}</pre>
+										{% elif item.holehe and item.holehe.stdout %}
+											<details class="small"><summary>Raw</summary><pre class="bg-light p-2 rounded small">{{ item.holehe.stdout }}</pre></details>
+										{% else %}
+											<div class="small text-muted">No output</div>
+										{% endif %}
+									</div>
+								</div>
+							{% endfor %}
+						</div>
+					{% endif %}
+
 					{% if results.email_patterns and results.email_patterns.patterns %}
 						<h6 class="mt-4">Email Patterns</h6>
 						<ul class="list-group list-group-flush">

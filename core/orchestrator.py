@@ -56,9 +56,23 @@ def analyze_workflow(
 
 	# Email patterns are local and cheap; compute synchronously
 	if first_name or last_name:
-		results["email_patterns"] = generate_email_patterns(
-			first_name or "", last_name or "", resolved_domain
-		)
+		patterns = generate_email_patterns(first_name or "", last_name or "", resolved_domain)
+		results["email_patterns"] = patterns
+		# Kick off limited parallel Holehe runs for top-N candidates
+		candidates = [p["email"] for p in patterns.get("patterns", []) if p.get("email")]
+		max_candidates = 10
+		cand_to_check = candidates[:max_candidates]
+		pattern_hits: Dict[str, Any] = {"checked": cand_to_check, "results": []}
+		if cand_to_check:
+			with ThreadPoolExecutor(max_workers=4) as executor:
+				future_map = {executor.submit(run_holehe, email_addr, request_timeout): email_addr for email_addr in cand_to_check}
+				for future in as_completed(future_map):
+					email_addr = future_map[future]
+					try:
+						pattern_hits["results"].append({"email": email_addr, "holehe": future.result()})
+					except Exception as exc:  # noqa: BLE001
+						pattern_hits["results"].append({"email": email_addr, "holehe": {"error": str(exc)}})
+		results["pattern_holehe"] = pattern_hits
 	# Training email template is always generated for awareness use
 	provider = None
 	if isinstance(results.get("mx"), dict):
