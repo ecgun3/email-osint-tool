@@ -5,6 +5,7 @@ import subprocess
 import os
 import shutil
 import re
+from pathlib import Path
 
 
 def _try_parse_json(text: str) -> Any:
@@ -58,7 +59,7 @@ def _strip_ansi(text: str) -> str:
 
 # Best-effort list of services where email enumeration typically requires login or
 # employs strong anti-enumeration patterns. This is used only to annotate UI.
-LOGIN_BEHIND_DOMAINS = {
+_DEFAULT_LOGIN_BEHIND = {
 	"docker.com",
 	"lastpass.com",
 	"office365.com",
@@ -70,6 +71,36 @@ LOGIN_BEHIND_DOMAINS = {
 	"wattpad.com",
 	"laposte.fr",
 }
+
+
+def _load_login_behind_domains() -> set:
+	# Allow override via env
+	override = os.getenv("LOGIN_BEHIND_EXTRA")
+	extras = set()
+	if override:
+		for token in override.split(","):
+			val = token.strip().lower()
+			if val:
+				extras.add(val)
+	# Load JSON file if exists
+	json_path = Path(__file__).resolve().parent.parent / "config" / "login_behind_domains.json"
+	domain_set = set(_DEFAULT_LOGIN_BEHIND)
+	try:
+		if json_path.is_file():
+			with open(json_path, "r", encoding="utf-8") as fh:
+				data = json.load(fh)
+				items = data.get("loginBehindDomains") if isinstance(data, dict) else None
+				if isinstance(items, list):
+					for it in items:
+						if isinstance(it, str) and it.strip():
+							domain_set.add(it.strip().lower())
+	except Exception:
+		# Fallback silently to defaults if JSON malformed
+		pass
+	return domain_set.union(extras)
+
+
+LOGIN_BEHIND_DOMAINS = _load_login_behind_domains()
 
 
 def _parse_symbol_lines(stdout: str) -> Dict[str, Any]:

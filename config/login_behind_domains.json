@@ -1,0 +1,15 @@
+{
+	"loginBehindDomains": [
+		"docker.com",
+		"lastpass.com",
+		"office365.com",
+		"hubspot.com",
+		"slack.com",
+		"trello.com",
+		"mail.ru",
+		"wordpress.com",
+		"wattpad.com",
+		"laposte.fr"
+	]
+}
+
