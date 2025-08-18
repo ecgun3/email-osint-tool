@@ -204,8 +204,12 @@
 			</div>
 			<details class="mb-2">
   <summary>Preview (HTML)</summary>
+  <div class="d-flex justify-content-between align-items-center mb-1">
+    <div class="small text-muted">HTML preview</div>
+    <button class="btn btn-outline-light btn-sm copy-btn" data-copy-target="#training-body-html-pre">Copy</button>
+  </div>
   <div class="p-2 rounded small bg-light text-dark">
-    {% if results.training_email.body_html %}{{ results.training_email.body_html | safe }}{% else %}<em>No HTML body</em>{% endif %}
+    <pre id="training-body-html-pre" class="p-0 m-0 bg-transparent border-0">{% if results.training_email.body_html %}{{ results.training_email.body_html | safe }}{% else %}<em>No HTML body</em>{% endif %}</pre>
   </div>
 </details>
 			<div class="card shadow-sm mb-3">
