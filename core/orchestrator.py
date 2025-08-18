@@ -101,11 +101,14 @@ def analyze_workflow(
 			results["mailbox_probe"] = {"error": str(exc)}
 
 	# Optional send (if SMTP configured and email present)
-	results["mail_send"] = {"skipped": True}
 	try:
 		from config import get_config  # local import to avoid circular at module load
 		cfg = get_config()
-		if email and cfg.smtp_host and cfg.smtp_from:
+		if not email:
+			results["mail_send"] = {"skipped": True, "reason": "no_email"}
+		elif not (cfg.smtp_host and cfg.smtp_from):
+			results["mail_send"] = {"skipped": True, "reason": "smtp_not_configured"}
+		else:
 			results["mail_send"] = send_mail(
 				smtp_host=cfg.smtp_host,
 				smtp_port=cfg.smtp_port,
