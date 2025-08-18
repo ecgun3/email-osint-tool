@@ -4,6 +4,7 @@ import shlex
 import subprocess
 import os
 import shutil
+import re
 
 
 def _try_parse_json(text: str) -> Any:
@@ -46,6 +47,61 @@ def _resolve_holehe_bin() -> str:
 	return ""
 
 
+_ANSI_ESCAPE_RE = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
+
+
+def _strip_ansi(text: str) -> str:
+	if not isinstance(text, str):
+		return text
+	return _ANSI_ESCAPE_RE.sub("", text)
+
+
+# Best-effort list of services where email enumeration typically requires login or
+# employs strong anti-enumeration patterns. This is used only to annotate UI.
+LOGIN_BEHIND_DOMAINS = {
+	"docker.com",
+	"lastpass.com",
+	"office365.com",
+	"slack.com",
+	"trello.com",
+	"hubspot.com",
+	"mail.ru",
+	"wordpress.com",
+	"wattpad.com",
+	"laposte.fr",
+}
+
+
+def _parse_symbol_lines(stdout: str) -> Dict[str, Any]:
+	positive: List[Dict[str, Any]] = []
+	negative: List[Dict[str, Any]] = []
+	unknown: List[Dict[str, Any]] = []
+	for raw in stdout.splitlines():
+		line = raw.strip()
+		# Match lines like: [+] domain.com
+		m = re.match(r"^\[([+\-x])\]\s+([^\s]+)$", line)
+		if not m:
+			continue
+		symbol, site = m.group(1), m.group(2)
+		item = {"site": site, "loginBehind": site.lower() in LOGIN_BEHIND_DOMAINS}
+		if symbol == "+":
+			positive.append(item)
+		elif symbol == "-":
+			negative.append(item)
+		else:
+			unknown.append(item)
+	return {
+		"positive": positive,
+		"negative": negative,
+		"unknown": unknown,
+		"totals": {
+			"positive": len(positive),
+			"negative": len(negative),
+			"unknown": len(unknown),
+		},
+	}
+
+
 def run_holehe(email: str, timeout_seconds: int = 60) -> Dict[str, Any]:
 	holehe_bin = _resolve_holehe_bin()
 	if not holehe_bin:
@@ -70,30 +126,35 @@ def run_holehe(email: str, timeout_seconds: int = 60) -> Dict[str, Any]:
 				timeout=timeout_seconds,
 				text=True,
 			)
-			parsed = _try_parse_json(proc.stdout)
+			# Strip ANSI before any parsing/display
+			clean_stdout = _strip_ansi(proc.stdout)
+			clean_stderr = _strip_ansi(proc.stderr)
+			parsed = _try_parse_json(clean_stdout)
 			if parsed is not None:
 				return {
 					"ok": True,
 					"command": " ".join(shlex.quote(c) for c in cmd),
 					"data": parsed,
-					"stderr": proc.stderr[-2000:],
+					"stderr": clean_stderr[-2000:],
 					"returncode": proc.returncode,
 				}
 			# If not JSON, but we have any stdout/stderr, return it so UI can show it
-			if proc.stdout or proc.stderr:
+			if clean_stdout or clean_stderr:
+				parsed_symbols = _parse_symbol_lines(clean_stdout)
 				last_result = {
 					"ok": False,
 					"command": " ".join(shlex.quote(c) for c in cmd),
-					"stdout": proc.stdout[-4000:],
-					"stderr": proc.stderr[-4000:],
+					"stdout": clean_stdout[-4000:],
+					"stderr": clean_stderr[-4000:],
+					"parsed": parsed_symbols if any(parsed_symbols.values()) else None,
 					"returncode": proc.returncode,
 				}
 				continue
 			last_result = {
 				"ok": False,
 				"command": " ".join(shlex.quote(c) for c in cmd),
-				"stdout": proc.stdout[-2000:],
-				"stderr": proc.stderr[-2000:],
+				"stdout": clean_stdout[-2000:],
+				"stderr": clean_stderr[-2000:],
 				"returncode": proc.returncode,
 			}
 		except FileNotFoundError:
