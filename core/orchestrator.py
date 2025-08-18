@@ -1,5 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List
 import traceback
 from time import perf_counter
 
@@ -11,6 +11,10 @@ from core.training_template import generate_training_email_template
 from utils.helpers import extract_domain, now_utc_iso
 from core.smtp_probe import probe_mailbox_exists
 from core.smtp_sender import send_mail
+from core import email_patterns as email_patterns_module
+from core import mx_analyzer as mx_analyzer_module
+from core import holehe_runner as holehe_runner_module
+from core import builtwith_client as builtwith_client_module
 
 
 def analyze_workflow(
@@ -132,3 +136,37 @@ def analyze_workflow(
 	results["meta"]["errors"] = errors
 
 	return results
+
+
+def run_simulation(
+    first_name: str,
+    last_name: str,
+    domain: str,
+    use_builtwith: bool = False,
+) -> Dict[str, Any]:
+    """Lightweight simulation wrapper for unit tests.
+
+    Accepts either dict-based output from generate_email_patterns (HEAD) or a list (tests).
+    Delegates to wrapper helpers in modules for MX and account enumeration to keep tests simple.
+    """
+
+    generated = email_patterns_module.generate_email_patterns(first_name, last_name, domain)
+    if isinstance(generated, dict):
+        generated_emails: List[str] = [p.get("email") for p in generated.get("patterns", []) if p.get("email")]
+    else:
+        generated_emails = list(generated)
+
+    mx_records: List[Dict[str, Any]] = mx_analyzer_module.fetch_mx_records(domain)
+    accounts_summary: Dict[str, Any] = holehe_runner_module.enumerate_accounts(generated_emails)
+
+    result: Dict[str, Any] = {
+        "domain": domain,
+        "generated_emails": generated_emails,
+        "mx_records": mx_records,
+        "accounts": accounts_summary,
+    }
+
+    if use_builtwith:
+        result["technology_stack"] = builtwith_client_module.fetch_technology_stack(domain)
+
+    return result

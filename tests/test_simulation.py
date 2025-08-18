@@ -45,4 +45,8 @@ def test_run_simulation_with_builtwith(monkeypatch):
     result = run_simulation("Ada", "Lovelace", "example.org", use_builtwith=True)
 
     assert result["generated_emails"] == ["ada_lovelace@example.org"]
+<<<<<<< HEAD
     assert result["technology_stack"]["cms"] == "WordPress"
+=======
+    assert result["technology_stack"]["cms"] == "WordPress"
+>>>>>>> 6f0ef32 (Add core modules and tests for OSINT email simulation pipeline)

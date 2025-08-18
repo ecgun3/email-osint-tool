@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 Flask>=3.0.0,<4.0.0
 requests>=2.32.0,<3.0.0
 dnspython>=2.6.1,<3.0.0
 python-dotenv>=1.0.1,<2.0.0
 # Optional: install holehe to enable live scans via subprocess
 holehe==1.61
+=======
+Flask>=2.3
+pytest>=7.4
+>>>>>>> 6f0ef32 (Add core modules and tests for OSINT email simulation pipeline)
