@@ -9,12 +9,12 @@ def _simplify_builtwith(response_json: Any) -> Dict[str, Any]:
 
 	results = response_json.get("Results") or response_json.get("results") or []
 	if not isinstance(results, list) or not results:
-		return {"summary": {}, "paths": [], "raw": response_json}
+		return {"summary": {}, "flat": [], "paths": [], "raw": response_json}
 
 	first = results[0] if isinstance(results[0], dict) else {}
 	data = first.get("Result") or first.get("result") or {}
 	if not isinstance(data, dict):
-		return {"summary": {}, "paths": [], "raw": response_json}
+		return {"summary": {}, "flat": [], "paths": [], "raw": response_json}
 
 	paths = data.get("Paths") or data.get("paths") or []
 	if not isinstance(paths, list):
@@ -22,6 +22,7 @@ def _simplify_builtwith(response_json: Any) -> Dict[str, Any]:
 
 	# Aggregate technologies across all paths
 	tech_by_category: Dict[str, List[str]] = {}
+	tech_flat: List[str] = []
 	for path in paths:
 		if not isinstance(path, dict):
 			continue
@@ -35,6 +36,9 @@ def _simplify_builtwith(response_json: Any) -> Dict[str, Any]:
 			cats = tech.get("Categories") or tech.get("categories") or []
 			if not name:
 				continue
+			# Flat collection (no categorization)
+			if name not in tech_flat:
+				tech_flat.append(name)
 			if not cats or not isinstance(cats, list):
 				tech_by_category.setdefault("Unknown", [])
 				if name not in tech_by_category["Unknown"]:
@@ -48,7 +52,10 @@ def _simplify_builtwith(response_json: Any) -> Dict[str, Any]:
 					if name not in tech_by_category[cat_name]:
 						tech_by_category[cat_name].append(name)
 
-	return {"summary": tech_by_category, "paths": paths, "raw": response_json}
+	# Ensure deterministic order for display
+	tech_flat = sorted(tech_flat)
+
+	return {"summary": tech_by_category, "flat": tech_flat, "paths": paths, "raw": response_json}
 
 
 def fetch_builtwith(domain: str, api_key: str, timeout_seconds: int = 15) -> Dict[str, Any]:

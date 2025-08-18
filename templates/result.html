@@ -44,17 +44,14 @@
 						{% if results.builtwith.error %}
 							<div class="alert alert-warning">{{ results.builtwith.error }}</div>
 						{% else %}
-							{% if results.builtwith.summary and results.builtwith.summary|length %}
-								<div class="row">
-								{% for category, items in results.builtwith.summary.items() %}
-									<div class="col-md-6 mb-2">
-										<div class="border rounded p-2 h-100">
-											<div class="fw-semibold">{{ category }}</div>
-											<div class="small text-muted">{{ items|join(', ') }}</div>
-										</div>
-									</div>
+							{% if results.builtwith.flat and results.builtwith.flat|length %}
+								<ul class="list-group list-group-flush">
+								{% for tech in results.builtwith.flat %}
+									<li class="list-group-item">
+										<span class="small text-muted">{{ tech }}</span>
+									</li>
 								{% endfor %}
-								</div>
+								</ul>
 							{% else %}
 								<div class="alert alert-info">No BuiltWith data (missing API key or no results).</div>
 							{% endif %}
