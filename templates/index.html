@@ -1,1 +1,8 @@
-<!-- Main login form --> 
+{% extends "base.html" %}
+{% block content %}
+<form method="post" action="/mx">
+	<label for="domain">Domain</label>
+	<input type="text" id="domain" name="domain" placeholder="github.com" required>
+	<button type="submit">MX Sorgula</button>
+</form>
+{% endblock %}

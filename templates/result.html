@@ -1,1 +1,24 @@
-<!-- # Result display -->
+{% extends "base.html" %}
+{% block content %}
+<article>
+	<h3>Results</h3>
+	{% if domain %}
+	<p><strong>Resolved Domain:</strong> {{ domain }}</p>
+	{% endif %}
+	{% if result.status == 'ok' %}
+		<h4>MX Records</h4>
+		<ul>
+			{% for pref, host in result.records %}
+			<li>
+				<code>{{ host }}</code><br>
+				<small>Pref {{ pref }}</small>
+			</li>
+			{% endfor %}
+		</ul>
+		<p><strong>Provider:</strong> {{ result.provider }}</p>
+	{% else %}
+		<p role="status">Sorgu başarısız: {{ result.error }}</p>
+	{% endif %}
+</article>
+<p><a href="/">Geri dön</a></p>
+{% endblock %}
