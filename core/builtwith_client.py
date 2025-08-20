@@ -24,6 +24,8 @@ def _simplify_builtwith(response_json: Any) -> Dict[str, Any]:
 	# Aggregate technologies across all paths
 	tech_by_category: Dict[str, List[str]] = {}
 	tech_flat: List[str] = []
+	# Group same technologies with occurrence counts and categories they appear under
+	tech_counts: Dict[str, Dict[str, Any]] = {}
 	for path in paths:
 		if not isinstance(path, dict):
 			continue
@@ -40,6 +42,10 @@ def _simplify_builtwith(response_json: Any) -> Dict[str, Any]:
 			# Flat collection (no categorization)
 			if name not in tech_flat:
 				tech_flat.append(name)
+			# Normalized grouping
+			key = str(name).strip().lower()
+			entry = tech_counts.setdefault(key, {"name": name, "count": 0, "categories": set()})
+			entry["count"] += 1
 			if not cats or not isinstance(cats, list):
 				tech_by_category.setdefault("Unknown", [])
 				if name not in tech_by_category["Unknown"]:
@@ -52,11 +58,19 @@ def _simplify_builtwith(response_json: Any) -> Dict[str, Any]:
 					tech_by_category.setdefault(cat_name, [])
 					if name not in tech_by_category[cat_name]:
 						tech_by_category[cat_name].append(name)
+					# Capture categories into grouping entry
+					entry["categories"].add(cat_name)
 
 	# Ensure deterministic order for display
 	tech_flat = sorted(tech_flat)
+	grouped: List[Dict[str, Any]] = []
+	for _key, info in tech_counts.items():
+		cats_list = sorted(info["categories"]) if isinstance(info.get("categories"), set) else []
+		grouped.append({"name": info["name"], "count": info["count"], "categories": cats_list})
+	# Sort groups by count desc, then name asc
+	grouped.sort(key=lambda x: (-x["count"], str(x["name"]).lower()))
 
-	return {"summary": tech_by_category, "flat": tech_flat, "paths": paths, "raw": response_json}
+	return {"summary": tech_by_category, "flat": tech_flat, "grouped": grouped, "paths": paths, "raw": response_json}
 
 
 def fetch_builtwith(domain: str, api_key: str, timeout_seconds: int = 15) -> Dict[str, Any]:

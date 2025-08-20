@@ -58,25 +58,7 @@ def analyze_workflow(
 				results[name] = {"error": str(exc), "trace": traceback.format_exc()}
 				errors.append({"component": name, "error": str(exc)})
 
-	# Email patterns are local and cheap; compute synchronously
-	if first_name or last_name:
-		patterns = generate_email_patterns(first_name or "", last_name or "", resolved_domain)
-		results["email_patterns"] = patterns
-		# Kick off limited parallel Holehe runs for top-N candidates
-		candidates = [p["email"] for p in patterns.get("patterns", []) if p.get("email")]
-		max_candidates = 10
-		cand_to_check = candidates[:max_candidates]
-		pattern_hits: Dict[str, Any] = {"checked": cand_to_check, "results": []}
-		if cand_to_check:
-			with ThreadPoolExecutor(max_workers=4) as executor:
-				future_map = {executor.submit(run_holehe, email_addr, request_timeout): email_addr for email_addr in cand_to_check}
-				for future in as_completed(future_map):
-					email_addr = future_map[future]
-					try:
-						pattern_hits["results"].append({"email": email_addr, "holehe": future.result()})
-					except Exception as exc:  # noqa: BLE001
-						pattern_hits["results"].append({"email": email_addr, "holehe": {"error": str(exc)}})
-		results["pattern_holehe"] = pattern_hits
+	# Email pattern akışı istek üzerine kaldırıldı; sonuçlara eklenmez
 	# Training email template is always generated for awareness use
 	provider = None
 	if isinstance(results.get("mx"), dict):
@@ -150,18 +132,13 @@ def run_simulation(
     Delegates to wrapper helpers in modules for MX and account enumeration to keep tests simple.
     """
 
-    generated = email_patterns_module.generate_email_patterns(first_name, last_name, domain)
-    if isinstance(generated, dict):
-        generated_emails: List[str] = [p.get("email") for p in generated.get("patterns", []) if p.get("email")]
-    else:
-        generated_emails = list(generated)
-
+    # Email pattern üretimi kaldırıldı
     mx_records: List[Dict[str, Any]] = mx_analyzer_module.fetch_mx_records(domain)
-    accounts_summary: Dict[str, Any] = holehe_runner_module.enumerate_accounts(generated_emails)
+    accounts_summary: Dict[str, Any] = holehe_runner_module.enumerate_accounts([])
 
     result: Dict[str, Any] = {
         "domain": domain,
-        "generated_emails": generated_emails,
+        # generated_emails kaldırıldı
         "mx_records": mx_records,
         "accounts": accounts_summary,
     }

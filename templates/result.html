@@ -47,11 +47,17 @@
 							{% if results.builtwith.elapsedMs %}
 								<div class="small text-muted mb-2">Elapsed: {{ results.builtwith.elapsedMs }} ms</div>
 							{% endif %}
-							{% if results.builtwith.flat and results.builtwith.flat|length %}
+							{% if results.builtwith.grouped and results.builtwith.grouped|length %}
 								<ul class="list-group list-group-flush">
-								{% for tech in results.builtwith.flat %}
-									<li class="list-group-item">
-										<span class="small text-muted">{{ tech }}</span>
+								{% for g in results.builtwith.grouped %}
+									<li class="list-group-item d-flex justify-content-between align-items-center">
+										<div>
+											<strong>{{ g.name }}</strong>
+											{% if g.categories and g.categories|length %}
+												<div class="small text-muted">{{ g.categories | join(', ') }}</div>
+											{% endif %}
+										</div>
+										<span class="badge rounded-pill text-bg-secondary">{{ g.count }}</span>
 									</li>
 								{% endfor %}
 								</ul>
@@ -155,20 +161,7 @@
 						</div>
 					{% endif %}
 
-					{% if results.email_patterns and results.email_patterns.patterns %}
-						<h6 class="mt-4">Email Patterns</h6>
-						<ul class="list-group list-group-flush">
-						{% for item in results.email_patterns.patterns %}
-							<li class="list-group-item d-flex justify-content-between align-items-center">
-								<span>{{ item.label }}</span>
-								<span class="font-monospace">{{ item.email }}</span>
-							</li>
-						{% endfor %}
-						</ul>
-					{% else %}
-						<h6 class="mt-4">Email Patterns</h6>
-						<div class="alert alert-info">Provide first and last name to generate personalized email patterns.</div>
-					{% endif %}
+					{# Email pattern bölümü kaldırıldı #}
 				</div>
 			</div>
 		</div>
