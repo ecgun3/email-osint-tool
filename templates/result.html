@@ -50,14 +50,26 @@
 							{% if results.builtwith.grouped and results.builtwith.grouped|length %}
 								<ul class="list-group list-group-flush">
 								{% for g in results.builtwith.grouped %}
-									<li class="list-group-item d-flex justify-content-between align-items-center">
-										<div>
-											<strong>{{ g.name }}</strong>
-											{% if g.categories and g.categories|length %}
-												<div class="small text-muted">{{ g.categories | join(', ') }}</div>
-											{% endif %}
+									<li class="list-group-item">
+										<div class="d-flex justify-content-between align-items-center">
+											<div>
+												<strong>{{ g.name }}</strong>
+												{% if g.categories and g.categories|length %}
+													<div class="small text-muted">{{ g.categories | join(', ') }}</div>
+												{% endif %}
+											</div>
+											<span class="badge rounded-pill text-bg-secondary">{{ g.count }}</span>
 										</div>
-										<span class="badge rounded-pill text-bg-secondary">{{ g.count }}</span>
+										{% if g.variants and g.variants|length %}
+											<details class="mt-2">
+												<summary class="small">Ayrıntılar</summary>
+												<ul class="small mt-2">
+												{% for v in g.variants %}
+													<li>{{ v.name }} <span class="badge text-bg-secondary">{{ v.count }}</span></li>
+												{% endfor %}
+												</ul>
+											</details>
+										{% endif %}
 									</li>
 								{% endfor %}
 								</ul>

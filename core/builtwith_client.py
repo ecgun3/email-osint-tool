@@ -1,4 +1,5 @@
 from typing import Any, Dict, Optional, List
+import re
 import requests
 from time import perf_counter
 
@@ -24,8 +25,23 @@ def _simplify_builtwith(response_json: Any) -> Dict[str, Any]:
 	# Aggregate technologies across all paths
 	tech_by_category: Dict[str, List[str]] = {}
 	tech_flat: List[str] = []
-	# Group same technologies with occurrence counts and categories they appear under
-	tech_counts: Dict[str, Dict[str, Any]] = {}
+
+	# Group by a derived base name (e.g., "jQuery 1.10.1" -> base "jQuery"),
+	# and accumulate variant counts and categories.
+	def derive_base_name(original: str) -> str:
+		name = (original or "").strip()
+		# Strip common version suffixes: " v1.2.3", " 1.2", etc.
+		name = re.sub(r"\s+v?\d+(?:[._-]\d+)*(?:\s.*)?$", "", name, flags=re.IGNORECASE)
+		# If starts with a known family (jquery, microsoft), group by that token
+		low = name.lower()
+		for root in ("jquery", "microsoft"):
+			if low.startswith(root):
+				return root
+		# Otherwise, use the cleaned name itself as base key (normalized)
+		return low
+
+	# base_key -> group info
+	base_groups: Dict[str, Dict[str, Any]] = {}
 	for path in paths:
 		if not isinstance(path, dict):
 			continue
@@ -42,10 +58,16 @@ def _simplify_builtwith(response_json: Any) -> Dict[str, Any]:
 			# Flat collection (no categorization)
 			if name not in tech_flat:
 				tech_flat.append(name)
-			# Normalized grouping
-			key = str(name).strip().lower()
-			entry = tech_counts.setdefault(key, {"name": name, "count": 0, "categories": set()})
-			entry["count"] += 1
+			# Grouping by base name
+			base_key = derive_base_name(name)
+			grp = base_groups.setdefault(base_key, {
+				"base": name if base_key == name.lower() else base_key.title(),
+				"total": 0,
+				"variants": {},  # variant_name -> count
+				"categories": set(),
+			})
+			grp["total"] += 1
+			grp["variants"][name] = grp["variants"].get(name, 0) + 1
 			if not cats or not isinstance(cats, list):
 				tech_by_category.setdefault("Unknown", [])
 				if name not in tech_by_category["Unknown"]:
@@ -59,15 +81,24 @@ def _simplify_builtwith(response_json: Any) -> Dict[str, Any]:
 					if name not in tech_by_category[cat_name]:
 						tech_by_category[cat_name].append(name)
 					# Capture categories into grouping entry
-					entry["categories"].add(cat_name)
+					grp["categories"].add(cat_name)
 
 	# Ensure deterministic order for display
 	tech_flat = sorted(tech_flat)
 	grouped: List[Dict[str, Any]] = []
-	for _key, info in tech_counts.items():
+	for base_key, info in base_groups.items():
 		cats_list = sorted(info["categories"]) if isinstance(info.get("categories"), set) else []
-		grouped.append({"name": info["name"], "count": info["count"], "categories": cats_list})
-	# Sort groups by count desc, then name asc
+		variants_list = [
+			{"name": var_name, "count": var_count}
+			for var_name, var_count in sorted(info["variants"].items(), key=lambda x: (-x[1], x[0].lower()))
+		]
+		grouped.append({
+			"name": info["base"],
+			"count": info["total"],
+			"categories": cats_list,
+			"variants": variants_list,
+		})
+	# Sort groups by total desc, then name asc
 	grouped.sort(key=lambda x: (-x["count"], str(x["name"]).lower()))
 
 	return {"summary": tech_by_category, "flat": tech_flat, "grouped": grouped, "paths": paths, "raw": response_json}
