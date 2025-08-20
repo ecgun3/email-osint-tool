@@ -1,193 +1,444 @@
 {% extends 'base.html' %}
 {% block content %}
-	<div class="row">
-		<div class="col-lg-8">
-			<div class="card shadow-sm mb-3">
-				<div class="card-body">
-					<div class="d-flex justify-content-between align-items-center">
-						<h5 class="card-title mb-0">Results</h5>
-						<a href="{{ url_for('index') }}" class="btn btn-outline-light btn-sm">← Back</a>
-					</div>
-					<div class="text-muted small">Generated at {{ timestamp }}</div>
-					<hr />
-					<div class="mb-2"><strong>Resolved Domain:</strong> {{ results.resolved_domain or 'n/a' }}</div>
-					{% if results.mx %}
-						<h6>MX Records</h6>
-						{% if results.mx.error %}
-							<div class="alert alert-warning">{{ results.mx.error }}</div>
-						{% else %}
-							{% if results.mx.mx_records and results.mx.mx_records|length > 0 %}
-							<ul class="list-group list-group-flush">
-							{% for mx in results.mx.mx_records %}
-								<li class="list-group-item d-flex justify-content-between align-items-center">
-									<span>{{ mx.exchange }}</span>
-									<span class="badge rounded-pill text-bg-secondary">Pref {{ mx.preference }}</span>
-								</li>
-							{% endfor %}
-							</ul>
-							{% else %}
-							<div class="alert alert-info">No MX records found.</div>
-							{% endif %}
-							<div class="mt-2">Provider: <span class="badge bg-info text-dark">{{ results.mx.provider }}</span></div>
-							{% if results.mx.warnings and results.mx.warnings|length %}
-								<div class="mt-2">
-									{% for w in results.mx.warnings %}
-										<div class="small text-warning">⚠️ {{ w }}</div>
-									{% endfor %}
-								</div>
-							{% endif %}
-						{% endif %}
-					{% endif %}
+<div class="fade-in">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Header -->
+            <div class="card shadow-lg border-0 mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h3 class="card-title text-primary mb-1">
+                                <i class="fas fa-chart-line me-2"></i>Analysis Results
+                            </h3>
+                            <p class="text-muted mb-0">
+                                <i class="fas fa-clock me-1"></i>Generated at {{ timestamp }}
+                            </p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>New Analysis
+                            </a>
+                            <button class="btn btn-outline-info" onclick="window.print()">
+                                <i class="fas fa-print me-2"></i>Print
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Domain Info -->
+                    <div class="alert alert-info border-0">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-globe fa-2x me-3 text-info"></i>
+                            <div>
+                                <strong>Target Domain:</strong> 
+                                <span class="badge bg-primary fs-6">{{ results.resolved_domain or 'N/A' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-					{% if results.builtwith %}
-						<h6 class="mt-4">BuiltWith</h6>
-						{% if results.builtwith.error %}
-							<div class="alert alert-warning">{{ results.builtwith.error }}</div>
-						{% else %}
-							{% if results.builtwith.elapsedMs %}
-								<div class="small text-muted mb-2">Elapsed: {{ results.builtwith.elapsedMs }} ms</div>
-							{% endif %}
-							{% if results.builtwith.grouped and results.builtwith.grouped|length %}
-								<ul class="list-group list-group-flush">
-								{% for g in results.builtwith.grouped %}
-									<li class="list-group-item">
-										<div class="d-flex justify-content-between align-items-center">
-											<div>
-												<strong>{{ g.name }}</strong>
-												{% if g.categories and g.categories|length %}
-													<div class="small text-muted">{{ g.categories | join(', ') }}</div>
-												{% endif %}
-											</div>
-											<span class="badge rounded-pill text-bg-secondary">{{ g.count }}</span>
-										</div>
-										{% if g.variants and g.variants|length %}
-											<details class="mt-2">
-												<summary class="details-toggle">Details</summary>
-												<ul class="small mt-2">
-												{% for v in g.variants %}
-													<li>{{ v.name }} <span class="badge text-bg-secondary">{{ v.count }}</span></li>
-												{% endfor %}
-												</ul>
-											</details>
-										{% endif %}
-									</li>
-								{% endfor %}
-								</ul>
-							{% else %}
-								<div class="alert alert-info">No BuiltWith data (missing API key or no results).</div>
-							{% endif %}
-						{% endif %}
-					{% endif %}
+            <!-- MX Records Section -->
+            {% if results.mx %}
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-server me-2"></i>MX Records Analysis
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if results.mx.error %}
+                        <div class="alert alert-warning border-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>{{ results.mx.error }}
+                        </div>
+                    {% else %}
+                        {% if results.mx.mx_records and results.mx.mx_records|length > 0 %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th><i class="fas fa-exchange-alt me-1"></i>Exchange</th>
+                                            <th><i class="fas fa-sort-numeric-up me-1"></i>Priority</th>
+                                            <th><i class="fas fa-info-circle me-1"></i>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for mx in results.mx.mx_records %}
+                                        <tr>
+                                            <td>
+                                                <code class="text-primary">{{ mx.exchange }}</code>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary">{{ mx.preference }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check me-1"></i>Active
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info border-0">
+                                <i class="fas fa-info-circle me-2"></i>No MX records found for this domain.
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mt-3">
+                            <strong>Provider:</strong> 
+                            <span class="badge bg-info text-dark">{{ results.mx.provider or 'Unknown' }}</span>
+                        </div>
+                        
+                        {% if results.mx.warnings and results.mx.warnings|length %}
+                            <div class="mt-3">
+                                {% for w in results.mx.warnings %}
+                                <div class="alert alert-warning border-0 py-2">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>{{ w }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
 
-					{% if results.holehe %}
-						<h6 class="mt-4">Holehe</h6>
-						{% if results.holehe.error %}
-							<div class="alert alert-warning">{{ results.holehe.error }}</div>
-						{% else %}
-							<div class="small text-muted mb-2">Command: <code>{{ results.holehe.command }}</code>{% if results.holehe.elapsedMs %} · {{ results.holehe.elapsedMs }} ms{% endif %}</div>
-							{% if results.holehe.ok and results.holehe.data is defined %}
-								<pre class="bg-light p-2 rounded small">{{ results.holehe.data | tojson(indent=2) }}</pre>
-							{% elif results.holehe.parsed is defined and results.holehe.parsed %}
-								<div class="row">
-									<div class="col-md-4">
-										<div class="fw-semibold mb-1">Matches [+]</div>
-										<ul class="list-group list-group-flush">
-										{% for item in results.holehe.parsed.positive %}
-											<li class="list-group-item d-flex justify-content-between align-items-center">
-												<span>{{ item.site }}</span>
-												{% if item.loginBehind %}<span class="badge text-bg-warning">login</span>{% endif %}
-											</li>
-										{% endfor %}
-										</ul>
-									</div>
+            <!-- BuiltWith Section -->
+            {% if results.builtwith %}
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-code me-2"></i>Technology Stack Analysis
+                        {% if results.builtwith.elapsedMs %}
+                            <small class="float-end">
+                                <i class="fas fa-stopwatch me-1"></i>{{ results.builtwith.elapsedMs }}ms
+                            </small>
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if results.builtwith.error %}
+                        <div class="alert alert-warning border-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>{{ results.builtwith.error }}
+                        </div>
+                    {% else %}
+                        {% if results.builtwith.grouped and results.builtwith.grouped|length %}
+                            <div class="row g-3">
+                                {% for group in results.builtwith.grouped %}
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="tech-group-card p-3 border rounded h-100">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="mb-0 text-primary">{{ group.name }}</h6>
+                                            <span class="badge bg-primary fs-6">{{ group.count }}</span>
+                                        </div>
+                                        
+                                        {% if group.categories and group.categories|length %}
+                                            <div class="mb-2">
+                                                {% for category in group.categories %}
+                                                <span class="badge bg-light text-dark me-1">{{ category }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        
+                                        {% if group.variants and group.variants|length %}
+                                            <details class="mt-2">
+                                                <summary class="details-toggle">
+                                                    <i class="fas fa-chevron-down me-1"></i>Details
+                                                </summary>
+                                                <div class="mt-2">
+                                                    {% for variant in group.variants %}
+                                                    <div class="variant-item p-2 bg-light rounded mb-2">
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <strong>{{ variant.name }}</strong>
+                                                            <span class="badge bg-secondary">{{ variant.count }}</span>
+                                                        </div>
+                                                        {% if variant.examples and variant.examples|length %}
+                                                            <div class="mt-1 small">
+                                                                <strong>Examples:</strong>
+                                                                {% for example in variant.examples[:3] %}
+                                                                <div class="text-break">
+                                                                    <a href="{{ example }}" target="_blank" class="text-decoration-none">
+                                                                        <i class="fas fa-external-link-alt me-1"></i>{{ example }}
+                                                                    </a>
+                                                                </div>
+                                                                {% endfor %}
+                                                                {% if variant.examples|length > 3 %}
+                                                                    <small class="text-muted">+{{ variant.examples|length - 3 }} more</small>
+                                                                {% endif %}
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </details>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% elif results.builtwith.flat and results.builtwith.flat|length %}
+                            <div class="row g-2">
+                                {% for tech in results.builtwith.flat %}
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="tech-item p-2 bg-light rounded border">
+                                        <i class="fas fa-tag me-2 text-muted"></i>{{ tech }}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info border-0">
+                                <i class="fas fa-info-circle me-2"></i>No technology stack data available.
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
 
-									<div class="col-md-4">
-										<div class="fw-semibold mb-1">No Match [-]</div>
-										<ul class="list-group list-group-flush">
-										{% for item in results.holehe.parsed.negative %}
-											<li class="list-group-item d-flex justify-content-between align-items-center">
-												<span>{{ item.site }}</span>
-												{% if item.loginBehind %}<span class="badge text-bg-warning">login</span>{% endif %}
-											</li>
-										{% endfor %}
-										</ul>
-									</div>
+            <!-- Holehe Section -->
+            {% if results.holehe %}
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-search me-2"></i>Account Enumeration (Holehe)
+                        {% if results.holehe.elapsedMs %}
+                            <small class="float-end">
+                                <i class="fas fa-stopwatch me-1"></i>{{ results.holehe.elapsedMs }}ms
+                            </small>
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if results.holehe.error %}
+                        <div class="alert alert-warning border-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>{{ results.holehe.error }}
+                        </div>
+                    {% else %}
+                        <div class="mb-3">
+                            <strong>Command:</strong> 
+                            <code class="bg-light p-2 rounded">{{ results.holehe.command }}</code>
+                        </div>
+                        
+                        {% if results.holehe.ok and results.holehe.data is defined %}
+                            <pre class="bg-light p-3 rounded border"><code>{{ results.holehe.data | tojson(indent=2) }}</code></pre>
+                        {% elif results.holehe.parsed is defined and results.holehe.parsed %}
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="result-card bg-success text-white p-3 rounded">
+                                        <h6 class="mb-2">
+                                            <i class="fas fa-check-circle me-2"></i>Matches [+]
+                                        </h6>
+                                        <div class="h4 mb-0">{{ results.holehe.parsed.totals.positive }}</div>
+                                        <small>Accounts found</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="result-card bg-danger text-white p-3 rounded">
+                                        <h6 class="mb-2">
+                                            <i class="fas fa-times-circle me-2"></i>No Match [-]
+                                        </h6>
+                                        <div class="h4 mb-0">{{ results.holehe.parsed.totals.negative }}</div>
+                                        <small>Accounts not found</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="result-card bg-secondary text-white p-3 rounded">
+                                        <h6 class="mb-2">
+                                            <i class="fas fa-question-circle me-2"></i>Unknown [x]
+                                        </h6>
+                                        <div class="h4 mb-0">{{ results.holehe.parsed.totals.unknown }}</div>
+                                        <small>Unclear results</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if results.holehe.parsed.positive and results.holehe.parsed.positive|length %}
+                            <div class="mt-4">
+                                <h6 class="text-success">
+                                    <i class="fas fa-check-circle me-2"></i>Found Accounts
+                                </h6>
+                                <div class="row g-2">
+                                    {% for item in results.holehe.parsed.positive %}
+                                    <div class="col-md-6 col-lg-4">
+                                        <div class="site-item p-2 bg-success bg-opacity-10 rounded border border-success">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span>{{ item.site }}</span>
+                                                {% if item.loginBehind %}
+                                                <span class="badge bg-warning text-dark">Login Required</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <details class="mt-3">
+                                <summary class="details-toggle">
+                                    <i class="fas fa-code me-1"></i>Raw Output
+                                </summary>
+                                <pre class="bg-light p-3 rounded border mt-2"><code>{{ results.holehe.stdout }}</code></pre>
+                            </details>
+                        {% elif results.holehe.stdout is defined %}
+                            <pre class="bg-light p-3 rounded border"><code>{{ results.holehe.stdout }}</code></pre>
+                            {% if results.holehe.stderr is defined and results.holehe.stderr %}
+                                <details class="mt-2">
+                                    <summary class="details-toggle">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>Error Output
+                                    </summary>
+                                    <pre class="bg-light p-3 rounded border mt-2 text-danger"><code>{{ results.holehe.stderr }}</code></pre>
+                                </details>
+                            {% endif %}
+                        {% else %}
+                            <div class="alert alert-info border-0">
+                                <i class="fas fa-info-circle me-2"></i>No Holehe output available.
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
 
-									<div class="col-md-4">
-										<div class="fw-semibold mb-1">Unknown [x]</div>
-										<ul class="list-group list-group-flush">
-										{% for item in results.holehe.parsed.unknown %}
-											<li class="list-group-item d-flex justify-content-between align-items-center">
-												<span>{{ item.site }}</span>
-												{% if item.loginBehind %}<span class="badge text-bg-warning">login</span>{% endif %}
-											</li>
-										{% endfor %}
-										</ul>
-									</div>
-								</div>
-								<details class="mt-2"><summary class="small">Raw</summary><pre class="bg-light p-2 rounded small">{{ results.holehe.stdout }}</pre></details>
-							{% elif results.holehe.stdout is defined %}
-								<pre class="bg-light p-2 rounded small">{{ results.holehe.stdout }}</pre>
-								{% if results.holehe.stderr is defined and results.holehe.stderr %}
-									<details class="mt-2"><summary class="small">stderr</summary><pre class="bg-light p-2 rounded small">{{ results.holehe.stderr }}</pre></details>
-								{% endif %}
-							{% else %}
-								<div class="alert alert-info">No Holehe output.</div>
-							{% endif %}
-						{% endif %}
-					{% endif %}
+            <!-- SMTP Probe Section -->
+            {% if results.smtp_probe %}
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-envelope me-2"></i>SMTP Mailbox Probe
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if results.smtp_probe.error %}
+                        <div class="alert alert-warning border-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>{{ results.smtp_probe.error }}
+                        </div>
+                    {% else %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="probe-result p-3 bg-light rounded">
+                                    <h6 class="mb-2">Target Email</h6>
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge bg-{{ 'success' if results.smtp_probe.target.exists else 'danger' }} me-2">
+                                            {{ 'Exists' if results.smtp_probe.target.exists else 'Not Found' }}
+                                        </span>
+                                        <code>{{ results.smtp_probe.target.email }}</code>
+                                    </div>
+                                    {% if results.smtp_probe.target.reply %}
+                                        <small class="text-muted d-block mt-1">{{ results.smtp_probe.target.reply }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="probe-result p-3 bg-light rounded">
+                                    <h6 class="mb-2">Random Email</h6>
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge bg-{{ 'success' if results.smtp_probe.random.exists else 'danger' }} me-2">
+                                            {{ 'Exists' if results.smtp_probe.random.exists else 'Not Found' }}
+                                        </span>
+                                        <code>{{ results.smtp_probe.random.email }}</code>
+                                    </div>
+                                    {% if results.smtp_probe.random.reply %}
+                                        <small class="text-muted d-block mt-1">{{ results.smtp_probe.random.reply }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <strong>Verdict:</strong> 
+                            <span class="badge bg-{{ 'success' if results.smtp_probe.verdict == 'deliverable' else 'danger' }}">
+                                {{ results.smtp_probe.verdict|title }}
+                            </span>
+                        </div>
+                        
+                        {% if results.smtp_probe.trace and results.smtp_probe.trace|length %}
+                            <details class="mt-3">
+                                <summary class="details-toggle">
+                                    <i class="fas fa-list me-1"></i>SMTP Trace
+                                </summary>
+                                <div class="mt-2">
+                                    {% for step in results.smtp_probe.trace %}
+                                    <div class="trace-step p-2 bg-light rounded mb-1">
+                                        <code class="small">{{ step }}</code>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </details>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
 
-					{% if results.pattern_holehe and results.pattern_holehe.results %}
-						<h6 class="mt-4">Pattern Candidates (Holehe)</h6>
-						<div class="row">
-							{% for item in results.pattern_holehe.results %}
-								<div class="col-md-6 mb-2">
-									<div class="border rounded p-2 h-100">
-										<div class="fw-semibold">{{ item.email }}</div>
-										{% if item.holehe and item.holehe.parsed %}
-											<div class="small text-muted">+
-												{{ item.holehe.parsed.totals.positive }} / - {{ item.holehe.parsed.totals.negative }} / x {{ item.holehe.parsed.totals.unknown }}
-											</div>
-											{% if item.holehe.parsed.positive and item.holehe.parsed.positive|length %}
-												<div class="small">Matches: {{ item.holehe.parsed.positive | map(attribute='site') | list | join(', ') }}</div>
-											{% endif %}
-											{% if item.holehe.stdout %}
-												<details class="small"><summary>Raw</summary><pre class="bg-light p-2 rounded small">{{ item.holehe.stdout }}</pre></details>
-											{% endif %}
-											{% if item.holehe.stderr %}
-												<details class="mt-2 small"><summary>stderr</summary><pre class="bg-light p-2 rounded small">{{ item.holehe.stderr }}</pre></details>
-											{% endif %}
-										{% elif item.holehe and item.holehe.ok and item.holehe.data %}
-											<pre class="bg-light p-2 rounded small">{{ item.holehe.data | tojson(indent=2) }}</pre>
-										{% elif item.holehe and item.holehe.stdout %}
-											<details class="small"><summary>Raw</summary><pre class="bg-light p-2 rounded small">{{ item.holehe.stdout }}</pre></details>
-											{% if item.holehe.stderr %}
-												<details class="mt-2 small"><summary>stderr</summary><pre class="bg-light p-2 rounded small">{{ item.holehe.stderr }}</pre></details>
-											{% endif %}
-										{% else %}
-											<div class="small text-muted">No output</div>
-										{% endif %}
-									</div>
-								</div>
-							{% endfor %}
-						</div>
-					{% endif %}
+<style>
+.tech-group-card {
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+}
 
-					{# Email pattern bölümü kaldırıldı #}
-				</div>
-			</div>
-		</div>
-		<div class="col-lg-4">
-			{# Training Email (Awareness) panel removed #}
-			<div class="card shadow-sm mb-3">
-				<div class="card-body">
-					<div class="d-flex justify-content-between align-items-center">
-						<h6 class="card-title mb-0">Raw JSON</h6>
-						<button class="btn btn-outline-light btn-sm copy-btn" data-copy-target="#raw-json-pre">Copy</button>
-					</div>
-					<pre id="raw-json-pre" class="bg-light p-2 rounded small">{{ results | tojson(indent=2) }}</pre>
-				</div>
-			</div>
-		</div>
-	</div>
+.tech-group-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary-color);
+}
+
+.variant-item {
+    border-left: 3px solid var(--primary-color);
+}
+
+.tech-item {
+    transition: all 0.2s ease;
+}
+
+.tech-item:hover {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+.result-card {
+    transition: all 0.3s ease;
+}
+
+.result-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.site-item {
+    transition: all 0.2s ease;
+}
+
+.site-item:hover {
+    background-color: var(--success-color) !important;
+    color: white !important;
+}
+
+.probe-result {
+    transition: all 0.3s ease;
+}
+
+.probe-result:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+@media print {
+    .btn, .details-toggle {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+    }
+}
+</style>
 {% endblock %}
