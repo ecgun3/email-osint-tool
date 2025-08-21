@@ -1,4 +1,4 @@
-# tests/test_mx_analyzer.py
+# tests/test_mx_analyzer.py --> It checks whether it safely handles both successful and unsuccessful MX query cases.
 import pytest
 from unittest.mock import patch
 from core import mx_analyzer

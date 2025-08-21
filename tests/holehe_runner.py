@@ -1,4 +1,5 @@
-# tests/test_holehe_runner.py
+# tests/test_holehe_runner.py --> Checks whether it handles success, null, and error conditions safely.
+
 import pytest
 from unittest.mock import patch
 from core import holehe_runner

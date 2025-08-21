@@ -1,3 +1,13 @@
+#test_integrations_live.py
+
+"""
+These tests use real-world data and services to check three core functions:
+MX record analysis (analyze_mx)
+BuiltWith API call (fetch_builtwith)
+SMTP mailbox check (probe_mailbox_exists)
+In other words, these tests are not unit tests, but live tests (integration tests) integrated with the real system.
+"""
+
 import os
 import pytest
 

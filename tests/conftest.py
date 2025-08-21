@@ -1,3 +1,5 @@
+#confest.py --> It adds the root directory so that tests can import modules in the project without any problems.
+
 import sys
 import os
 
