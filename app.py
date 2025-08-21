@@ -39,6 +39,10 @@ def healthz() -> tuple[Dict[str, str], int]:
     """Health check endpoint for monitoring."""
     return {"status": "ok"}, 200
 
+@app.route("/health")
+def health():
+    return {"status": "ok"}, 200
+
 
 @app.route("/", methods=["GET"])
 def index() -> str:
