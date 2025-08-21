@@ -5,8 +5,8 @@
         <div class="card shadow-lg border-0">
             <div class="card-body p-4">
                 <div class="text-center mb-4">
-                    <h3 class="card-title text-primary mb-2">🔍 Email OSINT Scanner</h3>
-                    <p class="text-muted">Analyze domains and emails for security intelligence</p>
+                    <h3 class="card-title text-primary mb-2">🔍 Domain OSINT Scanner</h3>
+                    <p class="text-muted">Analyze domains for MX records and technology stack</p>
                 </div>
                 
                 {% if error %}
@@ -31,17 +31,7 @@
                                    title="Please enter a valid domain (e.g., example.com)" />
                             <div class="invalid-feedback">Please enter a valid domain.</div>
                         </div>
-                        <div class="col-md-6">
-                            <label for="email" class="form-label fw-semibold">
-                                <i class="fas fa-envelope me-1"></i>Email
-                            </label>
-                            <input type="email" 
-                                   name="email" 
-                                   id="email" 
-                                   class="form-control form-control-lg" 
-                                   placeholder="user@example.com" />
-                            <div class="invalid-feedback">Please enter a valid email address.</div>
-                        </div>
+                        
                     </div>
                     
                     <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
@@ -65,8 +55,8 @@
                         <div class="col-md-4">
                             <div class="feature-card p-3">
                                 <i class="fas fa-shield-alt text-primary fa-2x mb-2"></i>
-                                <h6 class="mb-1">Security Analysis</h6>
-                                <small class="text-muted">MX records & email validation</small>
+                                <h6 class="mb-1">MX Records</h6>
+                                <small class="text-muted">Mail exchange configuration</small>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -76,13 +66,7 @@
                                 <small class="text-muted">BuiltWith integration</small>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="feature-card p-3">
-                                <i class="fas fa-search text-info fa-2x mb-2"></i>
-                                <h6 class="mb-1">OSINT Tools</h6>
-                                <small class="text-muted">Holehe & SMTP probe</small>
-                            </div>
-                        </div>
+                        
                     </div>
                 </div>
                 
@@ -124,19 +108,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // View JSON functionality
     viewJsonBtn.addEventListener('click', function() {
-        const domain = document.getElementById('domain').value;
-        const email = document.getElementById('email').value;
-        
-        if (!domain && !email) {
-            alert('Please enter a domain or email first.');
+        const domain = document.getElementById('domain').value.trim();
+        if (!domain) {
+            alert('Please enter a domain first.');
             return;
         }
-        
         const params = new URLSearchParams();
-        if (domain) params.append('domain', domain);
-        if (email) params.append('email', email);
+        params.append('domain', domain);
         params.append('format', 'json');
-        
         window.open(`/analyze?${params.toString()}`, '_blank');
     });
     

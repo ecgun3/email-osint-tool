@@ -4,8 +4,7 @@ Unit tests for the Flask application.
 
 This module tests the web application functionality including:
 - Route handling
-- Input validation
-- Error handling
+- Input validation (domain-only)
 - Response formats
 """
 
@@ -17,13 +16,12 @@ from app import app
 
 @pytest.fixture
 def client():
-    """Create a test client for the Flask app."""
     app.config['TESTING'] = True
-    app.config['WTF_CSRF_ENABLED'] = False
     with app.test_client() as client:
         yield client
 
 
+<<<<<<< HEAD
 class TestHealthEndpoints:
     def test_healthz_endpoint(self, client):
         response = client.get('/healthz')
@@ -58,11 +56,39 @@ class TestAnalyzeRoute:
     @patch('app.analyze_workflow')
     def test_analyze_post_valid_domain(self, mock_workflow, client):
         mock_workflow.return_value = {
+=======
+def test_healthz_endpoint(client):
+    r = client.get('/healthz')
+    assert r.status_code == 200
+    assert json.loads(r.data)['status'] == 'ok'
+
+@patch('app.analyze_workflow')
+def test_analyze_post_valid_domain(mock_workflow, client):
+    mock_workflow.return_value = {
+        'resolved_domain': 'example.com',
+        'mx': {'mx_records': []},
+        'builtwith': {'grouped': []}
+    }
+    r = client.post('/analyze', data={'domain': 'example.com'})
+    assert r.status_code == 200
+    assert b'Analysis Results' in r.data
+
+
+def test_analyze_post_no_input(client):
+    r = client.post('/analyze', data={})
+    assert r.status_code == 400
+    assert b'Please provide a domain to analyze' in r.data or b'Please provide a domain' in r.data
+
+
+def test_analyze_get_json_format(client):
+    with patch('app.analyze_workflow') as mock_wf:
+        mock_wf.return_value = {
+>>>>>>> feature/remove-holehe-and-email
             'resolved_domain': 'example.com',
             'mx': {'mx_records': []},
-            'builtwith': {'grouped': []},
-            'holehe': {'parsed': {'totals': {'positive': 0, 'negative': 0, 'unknown': 0}}}
+            'builtwith': {'grouped': []}
         }
+<<<<<<< HEAD
         response = client.post('/analyze', data={'domain': 'example.com'})
         assert response.status_code == 200
         html = response.get_data(as_text=True)
@@ -206,3 +232,11 @@ class TestResponseFormats:
         response = client.post('/analyze', data={'domain': 'example.com'})
         assert response.status_code == 200
         assert response.content_type.startswith('text/html')
+=======
+        r = client.get('/analyze?domain=example.com&format=json')
+        assert r.status_code == 200
+        data = json.loads(r.data)
+        assert data['ok'] is True
+        assert 'results' in data
+        assert 'timestamp' in data
+>>>>>>> feature/remove-holehe-and-email

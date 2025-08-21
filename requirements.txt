@@ -2,7 +2,6 @@ Flask<4.0.0,>=3.0.0
 requests<3.0.0,>=2.32.0
 dnspython<3.0.0,>=2.6.1
 python-dotenv<2.0.0,>=1.0.1
-holehe==1.61
 pytest>=7.4
 gunicorn>=21.2
 
