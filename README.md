@@ -1,197 +1,146 @@
-# 🔍 Email OSINT Scanner
+# 🔍 Domain OSINT
 
-A comprehensive OSINT (Open Source Intelligence) tool for analyzing domains and email addresses. Built with Flask and modern web technologies.
+A lightweight OSINT (Open Source Intelligence) tool for analyzing domains. Built with Flask and a modern, responsive UI.
 
 ## ✨ Features
 
-- **Domain Analysis**: MX record lookup and email provider detection
-- **Technology Stack**: BuiltWith integration for website technology detection
-- (Removed) Account Enumeration and SMTP probing for simplicity and performance
-- **Modern UI**: Responsive design with real-time validation and loading states
-- **API Support**: JSON API for programmatic access
-- **Comprehensive Testing**: Unit, integration, and performance tests
+- **Domain Analysis**: MX record lookup and provider hints
+- **Technology Stack**: BuiltWith integration with vendor/category grouping and variants
+- **Modern UI**: Centered, clean form; responsive; loading states; details toggles
+- **JSON API**: Simple GET endpoint for automation
+- **Tests**: Unit and integration tests (MX + BuiltWith)
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
 - Python 3.8+
-- BuiltWith API key (optional but recommended)
+- BuiltWith API key (optional, required only for tech stack results)
 
 ### Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone <your-repo-url>
-   cd email-osint-tool
-   ```
-
-2. **Create virtual environment**
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   ```
-
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your API keys
-   ```
-
-5. **Run the application**
-   ```bash
-   export FLASK_APP=app:app
-   export FLASK_DEBUG=1
-   flask run --host 127.0.0.1 --port 5000
-   ```
-
-## 🧪 Testing
-
-### Run All Tests
+1. Clone and enter the project
 ```bash
-pytest
+git clone https://github.com/ecgun3/email-osint-tool.git
+cd email-osint-tool
 ```
 
-### Run with Coverage
+2. Create and activate a virtual environment
 ```bash
-pytest --cov=core --cov=app --cov=utils --cov-report=html
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
 ```
 
-### Run Specific Test Categories
+3. Install dependencies
 ```bash
-# Unit tests only
-pytest -m unit
-
-# Integration tests
-pytest -m integration
-
-# Performance tests
-pytest -m performance
+pip install -r requirements.txt
 ```
 
-### Test Organization
-- `tests/test_simulation.py` - Core simulation (MX + BuiltWith)
-- `tests/test_app.py` - Flask application tests
-- `tests/test_integrations_live.py` - Live integration tests (MX + BuiltWith)
-
-## 🎨 UI/UX Features
-
-### Modern Design
-- **Responsive Layout**: Works on all device sizes
-- **Glass Morphism**: Modern visual effects with backdrop blur
-- **Interactive Elements**: Hover effects and smooth transitions
-- **Loading States**: Visual feedback during analysis
-- **Real-time Validation**: Instant form validation feedback
-
-### User Experience
-- **Feature Cards**: Visual representation of tool capabilities
-- **Progress Indicators**: Loading spinners and progress bars
-- **Error Handling**: User-friendly error messages
-- **Print Support**: Print-friendly result pages
-- **Keyboard Navigation**: Full keyboard accessibility
-
-## 🔧 Code Quality
-
-### Development Tools
-- **Type Hints**: Full Python type annotation support
-- **Code Formatting**: Black for consistent code style
-- **Linting**: Flake8 for code quality checks
-- **Type Checking**: MyPy for static type analysis
-
-### Code Organization
-- **Modular Structure**: Clean separation of concerns
-- **Error Handling**: Comprehensive exception handling
-- **Logging**: Structured logging throughout the application
-- **Documentation**: Docstrings and inline documentation
-
-### Quality Commands
+4. Set environment variables
 ```bash
-# Format code
-black .
-
-# Lint code
-flake8 .
-
-# Type checking
-mypy .
-
-# Run all quality checks
-black . && flake8 . && mypy .
+# Optional: only needed if you want BuiltWith tech stack results
+export BUILTWITH_API_KEY=your_builtwith_api_key
 ```
 
-## 📊 BuiltWith Integration
-
-### Technology Grouping
-- **Vendor Classification**: Groups technologies by vendor/framework
-- **Category Organization**: Categorizes by function (CMS, Analytics, etc.)
-- **Variant Detection**: Identifies different versions and variants
-- **Example URLs**: Provides sample URLs for each technology
-
-### Data Structure
-```json
-{
-  "grouped": [
-    {
-      "name": "WordPress",
-      "count": 15,
-      "categories": ["CMS", "Blogging"],
-      "variants": [
-        {
-          "name": "WordPress 6.0",
-          "count": 8,
-          "examples": ["https://example1.com", "https://example2.com"]
-        }
-      ]
-    }
-  ]
-}
+5. Run the app
+```bash
+export FLASK_APP=app:app
+export FLASK_DEBUG=1
+flask run --host 127.0.0.1 --port 5000
 ```
+
+Health checks:
+- `GET /healthz` → `{ "status": "ok" }`
+- `GET /health` → `{ "ok": true }`
 
 ## 🌐 API Usage
 
-### JSON API Endpoint
+### Endpoint
 ```bash
 GET /analyze?domain=example.com&format=json
 ```
 
-### Response Format
+### Response (example)
 ```json
 {
   "ok": true,
   "timestamp": "2025-08-20T14:30:00Z",
   "results": {
     "resolved_domain": "example.com",
-    "mx": { ... },
-    "builtwith": { ... },
-    "holehe": { ... }
+    "mx": {
+      "provider": "Google Workspace",
+      "mx_records": [
+        { "exchange": "mx1.example.com", "preference": 10 }
+      ],
+      "warnings": []
+    },
+    "builtwith": {
+      "elapsedMs": 477,
+      "grouped": [
+        {
+          "name": "WordPress",
+          "count": 5,
+          "categories": ["CMS"],
+          "variants": [
+            { "name": "WordPress 6.0", "count": 3, "examples": ["https://example.com"] }
+          ]
+        }
+      ]
+    }
   }
 }
 ```
 
-### cURL Example
+## 🎨 UI/UX
+
+- Centered, single-field domain form
+- Responsive cards for MX and BuiltWith results
+- Grouped technology list with small “Details” toggles for variants/examples
+- Toast-style alerts for empty or invalid input
+
+## 🧪 Testing
+
+Run all tests:
 ```bash
-curl "https://your-domain.com/analyze?domain=example.com&format=json" \
-  -H "Accept: application/json"
+pytest
 ```
 
-## 🚀 Deployment
-
-### Render Deployment
-1. **Connect Repository**: Link your GitHub repository
-2. **Environment Variables**: Set `BUILTWITH_API_KEY` and other required vars
-3. **Build Command**: `pip install -r requirements.txt`
-4. **Start Command**: `gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --worker-class gthread --threads 8 --timeout 120`
-
-### Environment Variables
+Coverage:
 ```bash
-BUILTWITH_API_KEY=your_api_key_here
-LIVE_MX=true
-PORT=8000
+pytest --cov=core --cov=app --cov=utils --cov-report=term-missing
+```
+
+Test layout:
+- `tests/test_app.py` – Flask routes and validation
+- `tests/test_simulation.py` – Core simulation (MX + BuiltWith)
+- `tests/test_integrations_live.py` – Live tests (MX + BuiltWith, opt-in via env)
+
+## 🔧 Code Quality
+
+- Type hints, structured logging
+- Black / Flake8 / MyPy configured via `requirements.txt`
+
+Useful commands:
+```bash
+black .
+flake8 .
+mypy .
+```
+
+## 📊 BuiltWith Integration
+
+- Groups technologies by vendor/framework
+- Aggregates variants (versions/editions) and example URLs
+- Returns `grouped` data for UI and a flat fallback where available
+
+## 🚀 Deploy (Render)
+
+- Build: `pip install -r requirements.txt`
+- Start: `gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --worker-class gthread --threads 8 --timeout 120`
+- Health Check Path: `/healthz`
+- Environment:
+```bash
+BUILTWITH_API_KEY=your_api_key_here  # required for tech stack
 FLASK_APP=app:app
 FLASK_DEBUG=false
 ```
@@ -200,108 +149,37 @@ FLASK_DEBUG=false
 
 ```
 email-osint-tool/
-├── app.py                 # Main Flask application
-├── config.py             # Configuration management
-├── requirements.txt      # Python dependencies
-├── pytest.ini          # Test configuration
-├── core/               # Core business logic
-│   ├── orchestrator.py # Main workflow orchestration
-│   ├── builtwith_client.py # BuiltWith API integration
-│   ├── mx_analyzer.py  # MX record analysis
-│   ├── holehe_runner.py # Holehe integration
-│   └── smtp_probe.py   # SMTP mailbox probing
-├── templates/          # Jinja2 templates
-│   ├── base.html      # Base template with modern styling
-│   ├── index.html     # Main form page
-│   └── result.html    # Results display page
-├── static/            # Static assets
-├── tests/            # Test suite
-│   ├── test_simulation.py # Core logic tests
-│   ├── test_app.py   # Application tests
-│   └── test_integrations_live.py # Live integration tests
-└── utils/            # Utility functions
-    ├── validators.py # Input validation
-    └── helpers.py    # Helper functions
+├── app.py                 # Flask application (routes: /, /healthz, /health, /analyze)
+├── config.py              # Configuration (env vars)
+├── requirements.txt       # Dependencies
+├── pytest.ini             # Pytest config
+├── core/
+│   ├── orchestrator.py    # Main workflow (MX + BuiltWith)
+│   ├── builtwith_client.py# BuiltWith API integration + grouping
+│   ├── mx_analyzer.py     # MX record analysis
+│   └── email_patterns.py  # Legacy helper (not used in UI)
+├── templates/
+│   ├── base.html          # Base layout & styles
+│   ├── index.html         # Centered domain form
+│   └── result.html        # MX & BuiltWith results
+├── tests/                 # Test suite
+│   ├── test_app.py
+│   ├── test_simulation.py
+│   └── test_integrations_live.py
+└── utils/
+    ├── validators.py      # Input validation (domain)
+    └── helpers.py         # Helpers (timestamps, domain extraction)
 ```
 
-## 🧪 Testing Strategy
+## 🙌 Notes
 
-### Test Types
-1. **Unit Tests**: Test individual functions in isolation
-2. **Integration Tests**: Test component interactions
-3. **Performance Tests**: Test response times and resource usage
-4. **Live Tests**: Test actual external API integrations
-
-### Test Coverage
-- **Core Logic**: 100% coverage of business logic
-- **API Endpoints**: All routes and error conditions
-- **Input Validation**: Edge cases and error conditions
-- **UI Components**: Template rendering and form handling
-
-### Mock Strategy
-- **External APIs**: Mock BuiltWith, DNS, and SMTP calls
-- **Subprocess Calls**: Mock Holehe command execution
-- **File Operations**: Mock file system operations
-- **Network Calls**: Mock HTTP requests
-
-## 🔒 Security Features
-
-- **Input Validation**: Comprehensive input sanitization
-- **Error Handling**: Safe error messages without information leakage
-- **Rate Limiting**: Built-in request throttling
-- **CSRF Protection**: Cross-site request forgery prevention
-- **XSS Prevention**: Output encoding and sanitization
-
-## 📈 Performance
-
-### Optimization Features
-- **Async Operations**: Non-blocking external API calls
-- **Caching**: BuiltWith result caching
-- **Connection Pooling**: Efficient HTTP connection reuse
-- **Gunicorn Workers**: Multi-worker process model
-
-### Benchmarks
-- **Response Time**: < 2 seconds for typical analysis
-- **Concurrent Users**: Supports 50+ concurrent requests
-- **Memory Usage**: < 100MB per worker process
-- **CPU Usage**: Efficient resource utilization
-
-## 🤝 Contributing
-
-### Development Setup
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass
-6. Submit a pull request
-
-### Code Standards
-- Follow PEP 8 style guidelines
-- Add type hints to all functions
-- Write comprehensive docstrings
-- Maintain test coverage above 90%
-- Use meaningful commit messages
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🙏 Acknowledgments
-
-- **BuiltWith**: Technology stack detection API
-- **Holehe**: Email account enumeration tool
-- **Flask**: Web framework
-- **Bootstrap**: UI components and styling
-- **FontAwesome**: Icons and visual elements
+- Email input, Holehe account enumeration, and SMTP probing were removed to keep the app fast and simple.
+- BuiltWith API key is optional; without it, only MX results are shown.
 
 ## 📞 Support
 
-For questions, issues, or contributions:
-- Create an issue on GitHub
-- Check the documentation
-- Review existing discussions
+- Open an issue on GitHub if you need help or have feature requests.
 
 ---
 
-**Built with ❤️ for the security research community**
+**Built with ❤️ for security research**
