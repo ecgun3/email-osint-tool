@@ -1,3 +1,15 @@
+/*
+Purpose: To test the user flow and some data controls of the entire application as an E2E test.
+
+Tests:
+     Does the home page load?
+     Does the form navigate to the second page after submission?
+     Does the Back button work?
+     Does the GitHub icon work correctly?
+
+Is the API or JSON data correct (e.g., Kyiv JSON, BuiltWith API)?
+*/
+
 describe('EmailOSINT App End-to-End Tests', () => {
 
   beforeEach(() => {
