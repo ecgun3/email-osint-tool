@@ -6,8 +6,7 @@ A comprehensive OSINT (Open Source Intelligence) tool for analyzing domains and 
 
 - **Domain Analysis**: MX record lookup and email provider detection
 - **Technology Stack**: BuiltWith integration for website technology detection
-- **Account Enumeration**: Holehe integration for finding email accounts across platforms
-- **SMTP Probing**: Mailbox existence verification via SMTP
+- (Removed) Account Enumeration and SMTP probing for simplicity and performance
 - **Modern UI**: Responsive design with real-time validation and loading states
 - **API Support**: JSON API for programmatic access
 - **Comprehensive Testing**: Unit, integration, and performance tests
@@ -76,9 +75,9 @@ pytest -m performance
 ```
 
 ### Test Organization
-- `tests/test_simulation.py` - Core simulation logic tests
+- `tests/test_simulation.py` - Core simulation (MX + BuiltWith)
 - `tests/test_app.py` - Flask application tests
-- `tests/test_integrations_live.py` - Live integration tests
+- `tests/test_integrations_live.py` - Live integration tests (MX + BuiltWith)
 
 ## 🎨 UI/UX Features
 

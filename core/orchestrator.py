@@ -5,15 +5,10 @@ from time import perf_counter
 
 from core.mx_analyzer import analyze_mx
 from core.builtwith_client import fetch_builtwith
-from core.holehe_runner import run_holehe
 from core.email_patterns import generate_email_patterns
-from core.training_template import generate_training_email_template
 from utils.helpers import extract_domain, now_utc_iso
-from core.smtp_probe import probe_mailbox_exists
-from core.smtp_sender import send_mail
 from core import email_patterns as email_patterns_module
 from core import mx_analyzer as mx_analyzer_module
-from core import holehe_runner as holehe_runner_module
 from core import builtwith_client as builtwith_client_module
 
 
@@ -48,8 +43,7 @@ def analyze_workflow(
 				futures["builtwith"] = executor.submit(
 					fetch_builtwith, resolved_domain, builtwith_api_key, request_timeout
 				)
-		if email:
-			futures["holehe"] = executor.submit(run_holehe, email, request_timeout)
+		# Holehe removed
 
 		for name, future in futures.items():
 			try:
@@ -58,60 +52,7 @@ def analyze_workflow(
 				results[name] = {"error": str(exc), "trace": traceback.format_exc()}
 				errors.append({"component": name, "error": str(exc)})
 
-	# Email pattern akışı istek üzerine kaldırıldı; sonuçlara eklenmez
-	# Training email template is always generated for awareness use
-	provider = None
-	if isinstance(results.get("mx"), dict):
-		provider = results["mx"].get("provider")
-	builtwith_summary = None
-	if isinstance(results.get("builtwith"), dict):
-		builtwith_summary = results["builtwith"].get("summary")
-	training = generate_training_email_template(
-		first_name,
-		last_name,
-		resolved_domain,
-		provider,
-		builtwith_summary,
-	)
-	results["training_email"] = training
-
-	# Optional mailbox probe (does not send email)
-	if email:
-		try:
-			results["mailbox_probe"] = probe_mailbox_exists(
-				email=email,
-				mail_from=f"probe@{resolved_domain or 'example.com'}",
-				timeout_seconds=request_timeout,
-			)
-		except Exception as exc:  # noqa: BLE001
-			results["mailbox_probe"] = {"error": str(exc)}
-
-	# Optional send (if SMTP configured and email present)
-	try:
-		from config import get_config  # local import to avoid circular at module load
-		cfg = get_config()
-		if not email:
-			results["mail_send"] = {"skipped": True, "reason": "no_email"}
-		elif not (cfg.smtp_host and cfg.smtp_from):
-			results["mail_send"] = {"skipped": True, "reason": "smtp_not_configured"}
-		else:
-			results["mail_send"] = send_mail(
-				smtp_host=cfg.smtp_host,
-				smtp_port=cfg.smtp_port,
-				smtp_username=cfg.smtp_username,
-				smtp_password=cfg.smtp_password,
-				smtp_use_tls=cfg.smtp_use_tls,
-				smtp_use_ssl=cfg.smtp_use_ssl,
-				mail_from=cfg.smtp_from,
-				mail_to=email,
-				subject=training["subject"],
-				body_text=training["body_text"],
-				body_html=training.get("body_html"),
-				from_display_name="Security Awareness",
-				timeout_seconds=request_timeout,
-			)
-	except Exception as exc:  # noqa: BLE001
-		results["mail_send"] = {"ok": False, "error": str(exc)}
+	# Training email, SMTP probe and send removed
 
 	results["meta"]["finished_at"] = now_utc_iso()
 	results["meta"]["elapsed_seconds"] = round(perf_counter() - start_ts, 3)
@@ -128,19 +69,14 @@ def run_simulation(
 ) -> Dict[str, Any]:
     """Lightweight simulation wrapper for unit tests.
 
-    Accepts either dict-based output from generate_email_patterns (HEAD) or a list (tests).
-    Delegates to wrapper helpers in modules for MX and account enumeration to keep tests simple.
+    Simplified: Only MX and optional BuiltWith are returned.
     """
 
-    # Email pattern üretimi kaldırıldı
     mx_records: List[Dict[str, Any]] = mx_analyzer_module.fetch_mx_records(domain)
-    accounts_summary: Dict[str, Any] = holehe_runner_module.enumerate_accounts([])
 
     result: Dict[str, Any] = {
         "domain": domain,
-        # generated_emails kaldırıldı
         "mx_records": mx_records,
-        "accounts": accounts_summary,
     }
 
     if use_builtwith:
