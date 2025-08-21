@@ -41,7 +41,8 @@ def healthz() -> tuple[Dict[str, str], int]:
 
 @app.route("/health")
 def health():
-    return {"status": "ok"}, 200
+    return {"ok": True}
+
 
 
 @app.route("/", methods=["GET"])
