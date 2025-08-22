@@ -238,6 +238,127 @@ pkill -f "flask run"
 - Use `tests/test_integrations_live.py` for real API testing
 - Requires valid BuiltWith API key
 
+### Test Commands (package.json)
+
+**Available Scripts:**
+```bash
+npm run test              # Run pytest
+npm run test:unit         # Run unit tests with verbose output
+npm run test:coverage     # Run tests with coverage report
+npm run test:cypress      # Run Cypress tests headless
+npm run test:cypress:open # Open Cypress Test Runner
+npm run test:cypress:headed # Run Cypress with browser visible
+npm run test:all          # Run both unit and Cypress tests
+npm run lint              # Run flake8 linting
+npm run format            # Run black code formatting
+npm run type-check        # Run mypy type checking
+npm run quality           # Run all quality checks
+```
+
+### Test Coverage Details
+
+**Unit Test Coverage:**
+- **Flask App**: Routes, validation, error handlers, response formats
+- **Core Logic**: MX analysis, BuiltWith integration, workflow orchestration
+- **Utils**: Helper functions, validators, timestamp handling
+- **Edge Cases**: Invalid input, network errors, timeout handling
+
+**Cypress Test Coverage:**
+- **Homepage**: Main elements, form positioning, feature cards
+- **Domain Analysis**: Input validation, form submission, loading states
+- **Results Page**: MX display, BuiltWith search, Details toggle
+- **Navigation**: Back button, View JSON, Print functionality
+- **Responsive Design**: Mobile, tablet, desktop viewports
+- **Error Handling**: Network errors, 404 pages, validation errors
+- **Performance**: Page load times, interaction responsiveness
+
+### Test Environment Setup
+
+**For Unit Tests:**
+```bash
+# Install Python dependencies
+pip install -r requirements.txt
+
+# Run tests
+pytest
+```
+
+**For Cypress Tests:**
+```bash
+# Install Node.js dependencies
+npm install
+
+# Start Flask app (required for Cypress)
+export FLASK_APP=app:app
+export FLASK_DEBUG=1
+flask run --host 127.0.0.1 --port 5000
+
+# In another terminal, run Cypress
+npm run test:cypress:open
+```
+
+**Environment Variables for Testing:**
+```bash
+# Optional: for live integration tests
+export BUILTWITH_API_KEY=your_test_key
+export LIVE_MX=true
+export LIVE_BUILTWITH=true
+```
+
+### Continuous Integration
+
+**GitHub Actions Workflow:**
+```yaml
+name: Tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+      - name: Run unit tests
+        run: pytest --cov=core --cov=app --cov=utils --cov-report=xml
+      - name: Install Node.js dependencies
+        run: npm install
+      - name: Start Flask app
+        run: |
+          export FLASK_APP=app:app
+          flask run --host 127.0.0.1 --port 5000 &
+          sleep 10
+      - name: Run Cypress tests
+        run: npm run test:cypress
+```
+
+### Test Best Practices
+
+**Unit Testing:**
+- Use `@patch` decorator for external dependencies
+- Test both success and failure scenarios
+- Mock BuiltWith API calls to avoid rate limits
+- Test edge cases and boundary conditions
+
+**Cypress Testing:**
+- Use custom commands for common operations
+- Test responsive design across viewports
+- Verify user interactions and state changes
+- Check accessibility and usability features
+
+**Test Data Management:**
+- Use fixtures for consistent test data
+- Mock external API responses
+- Test with realistic domain examples
+- Validate both HTML and JSON outputs
+
 ## 🔧 Code Quality
 
 - Type hints, structured logging
