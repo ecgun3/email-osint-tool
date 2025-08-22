@@ -35,19 +35,23 @@ app.config["TEMPLATES_AUTO_RELOAD"] = config.templates_auto_reload
 @app.route("/healthz")
 def healthz() -> tuple[Dict[str, str], int]:
     """Health check endpoint for monitoring."""
-    return {"status": "ok"}, 200
+    response = {"status": "ok"}, 200
+    return response
 
 
 @app.route("/health")
 def health() -> tuple[Dict[str, str], int]:
     """Health check endpoint for Render compatibility."""
-    return {"status": "ok"}, 200
+    response = {"status": "ok"}, 200
+    return response
 
 
 @app.route("/", methods=["GET"])
 def index() -> str:
     """Main page with analysis form."""
-    return render_template("index.html")
+    response = app.make_response(render_template("index.html"))
+    response.headers['Cache-Control'] = 'public, max-age=300'  # 5 minutes cache
+    return response
 
 
 @app.route("/analyze", methods=["POST", "GET"])
