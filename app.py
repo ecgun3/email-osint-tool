@@ -7,6 +7,7 @@ This module provides a web interface for OSINT analysis including:
 """
 
 import logging
+import json
 from typing import Any, Dict, Union
 from flask import Flask, render_template, request, jsonify
 
@@ -35,11 +36,6 @@ app.config["TEMPLATES_AUTO_RELOAD"] = config.templates_auto_reload
 def healthz() -> tuple[Dict[str, str], int]:
     """Health check endpoint for monitoring."""
     return {"status": "ok"}, 200
-
-@app.route("/health")
-def health():
-    return {"ok": True}
-
 
 
 @app.route("/", methods=["GET"])
@@ -86,11 +82,15 @@ def analyze() -> Union[str, tuple[Dict[str, Any], int]]:
 
         # Return appropriate response format
         if want_json:
-            return jsonify({
+            payload = {
                 "ok": True,
                 "timestamp": now_utc_iso(),
-                "results": results
-            })
+                "results": results,
+            }
+            return app.response_class(
+                json.dumps(payload, indent=2, ensure_ascii=False),
+                mimetype="application/json",
+            )
 
         return render_template("result.html", results=results, timestamp=now_utc_iso())
 
