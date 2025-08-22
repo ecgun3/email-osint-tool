@@ -194,6 +194,30 @@ email-osint-tool/
 - Technology groups with single variants automatically hide Details toggle for cleaner UI
 - Search functionality works client-side for instant results
 
+## 🚧 Future Improvements
+
+### High Priority
+- **Enhanced Unit Tests**: Expand test coverage for edge cases and error scenarios
+- **User API Key Management**: Allow users to input their own BuiltWith API keys to avoid consuming the main API quota
+- **Email Validation Integration**: Re-add Holehe email testing capabilities with user-provided API keys
+
+### Medium Priority  
+- **Rate Limiting**: Implement per-user rate limiting to prevent abuse
+- **Caching**: Add Redis/Memory caching for repeated domain lookups
+- **Export Options**: CSV/Excel export for analysis results
+- **Batch Processing**: Analyze multiple domains at once
+
+### Low Priority
+- **User Authentication**: Optional user accounts to save analysis history
+- **API Documentation**: Interactive API docs with Swagger/OpenAPI
+- **Mobile App**: React Native or Flutter mobile application
+- **Advanced Analytics**: Technology trend analysis and reporting
+
+### Development Status
+- **Current Branch**: `development` - Active development with latest features
+- **Main Branch**: `main` - Stable release (not yet merged)
+- **Next Steps**: Complete testing, add user API key management, then merge to main
+
 ## 📞 Support
 
 - Open an issue on GitHub if you need help or have feature requests.
