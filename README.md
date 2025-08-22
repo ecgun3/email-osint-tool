@@ -1,6 +1,10 @@
 # 🔍 Domain OSINT
 
-A lightweight OSINT (Open Source Intelligence) tool for analyzing domains. Built with Flask and a modern, responsive UI.
+A lightweight OSINT (Open Source Intelligence) tool for analyzing domains. Built with **Flask** and a modern, responsive UI.
+
+## 🌐 Live Demo
+
+**Try it now:** [https://emailosint.onrender.com](https://emailosint.onrender.com)
 
 ## ✨ Features
 
@@ -143,15 +147,21 @@ mypy .
 
 ## 🚀 Deploy (Render)
 
-- Build: `pip install -r requirements.txt`
-- Start: `gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --worker-class gthread --threads 8 --timeout 120`
-- Health Check Path: `/health` (Render compatibility)
-- Environment:
+This application is built with **Flask** and deployed on **Render** as a web service.
+
+- **Framework**: Flask (Python web framework)
+- **Platform**: Render (Cloud hosting)
+- **Build**: `pip install -r requirements.txt`
+- **Start**: `gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --worker-class gthread --threads 8 --timeout 120`
+- **Health Check Path**: `/health` (Render compatibility)
+- **Environment**:
 ```bash
 BUILTWITH_API_KEY=your_api_key_here  # required for tech stack
 FLASK_APP=app:app
 FLASK_DEBUG=false
 ```
+
+**Live Website**: [https://emailosint.onrender.com](https://emailosint.onrender.com)
 
 ## 📁 Project Structure
 
