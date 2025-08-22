@@ -104,6 +104,78 @@
         .table-light {
             background: rgba(248, 249, 250, 0.6);
         }
+        
+        /* Responsive card positioning */
+        .card-container {
+            position: relative;
+            margin: 2rem auto;
+            max-width: 500px;
+        }
+        
+        /* Desktop: Fixed position bottom left */
+        @media (min-width: 992px) {
+            .card-container {
+                position: fixed;
+                bottom: 1rem;
+                left: 1rem;
+                margin: 0;
+                max-width: 400px;
+                z-index: 1000;
+            }
+        }
+        
+        /* Tablet: Centered with some margin */
+        @media (min-width: 768px) and (max-width: 991px) {
+            .card-container {
+                margin: 3rem auto;
+                max-width: 600px;
+            }
+        }
+        
+        /* Mobile: Full width with padding */
+        @media (max-width: 767px) {
+            .card-container {
+                margin: 1rem;
+                max-width: none;
+            }
+            
+            .card {
+                border-radius: 12px;
+            }
+            
+            .card-body {
+                padding: 1.5rem !important;
+            }
+            
+            .btn-lg {
+                padding: 0.75rem 1.5rem !important;
+                font-size: 1rem !important;
+            }
+            
+            .feature-card {
+                margin-bottom: 1rem;
+            }
+        }
+        
+        /* Extra small mobile devices */
+        @media (max-width: 575px) {
+            .card-container {
+                margin: 0.5rem;
+            }
+            
+            .card-body {
+                padding: 1rem !important;
+            }
+            
+            .card-title {
+                font-size: 1.5rem !important;
+            }
+            
+            .btn-lg {
+                padding: 0.5rem 1rem !important;
+                font-size: 0.9rem !important;
+            }
+        }
         .btn { border-radius: 8px; font-weight: 600; transition: all 0.3s ease; border: none; }
         .btn-primary { background: linear-gradient(45deg, var(--primary-color), #0056b3); box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3); }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4); }
