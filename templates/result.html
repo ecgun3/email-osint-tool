@@ -110,13 +110,15 @@
             {% if results.builtwith %}
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-code me-2"></i>Technology Stack Analysis
-                        {% if results.builtwith.elapsedMs %}
-                            <small class="float-end">
-                                <i class="fas fa-stopwatch me-1"></i>{{ results.builtwith.elapsedMs }}ms
-                            </small>
-                        {% endif %}
+                    <h5 class="mb-0 d-flex align-items-center justify-content-between">
+                        <span><i class="fas fa-code me-2"></i>Technology Stack Analysis</span>
+                        <span class="ms-3 flex-grow-1">
+                            <div class="input-group input-group-sm" style="max-width: 360px; margin-left:auto;">
+                                <span class="input-group-text bg-white"><i class="fas fa-search"></i></span>
+                                <input id="tech-search" type="text" class="form-control" placeholder="Search technologies or categories..." />
+                                <button id="tech-clear" class="btn btn-outline-light" type="button">Clear</button>
+                            </div>
+                        </span>
                     </h5>
                 </div>
                 <div class="card-body">
@@ -126,24 +128,26 @@
                         </div>
                     {% else %}
                         {% if results.builtwith.grouped and results.builtwith.grouped|length %}
-                            <div class="row g-3">
+                            <div id="tech-grid" class="row g-3">
                                 {% for group in results.builtwith.grouped %}
-                                <div class="col-md-6 col-lg-4">
+                                <div class="col-md-6 col-lg-4 tech-card-wrapper" data-name="{{ group.name | lower }}" data-categories="{{ (group.categories or []) | join(' ') | lower }}">
                                     <div class="tech-group-card p-3 border rounded h-100">
                                         <div class="d-flex justify-content-between align-items-start mb-2">
                                             <h6 class="mb-0 text-primary">{{ group.name }}</h6>
+                                            {% if group.count and group.count > 1 %}
                                             <span class="badge bg-primary fs-6">{{ group.count }}</span>
+                                            {% endif %}
                                         </div>
                                         
                                         {% if group.categories and group.categories|length %}
-                                            <div class="mb-2">
+                                            <div class="mb-2 small text-muted">
                                                 {% for category in group.categories %}
                                                 <span class="badge bg-light text-dark me-1">{{ category }}</span>
                                                 {% endfor %}
                                             </div>
                                         {% endif %}
                                         
-                                        {% if group.variants and group.variants|length %}
+                                        {% if group.count and group.count > 1 and group.variants and group.variants|length %}
                                             <details class="mt-2">
                                                 <summary class="details-toggle">
                                                     <i class="fas fa-chevron-down me-1"></i>Details
@@ -153,7 +157,9 @@
                                                     <div class="variant-item p-2 bg-light rounded mb-2">
                                                         <div class="d-flex justify-content-between align-items-center">
                                                             <strong>{{ variant.name }}</strong>
+                                                            {% if variant.count and variant.count > 1 %}
                                                             <span class="badge bg-secondary">{{ variant.count }}</span>
+                                                            {% endif %}
                                                         </div>
                                                         {% if variant.examples and variant.examples|length %}
                                                             <div class="mt-1 small">
@@ -179,6 +185,9 @@
                                 </div>
                                 {% endfor %}
                             </div>
+                            <div id="tech-empty" class="alert alert-info d-none mt-3">
+                                <i class="fas fa-info-circle me-2"></i>No matching technologies.
+                            </div>
                         {% elif results.builtwith.flat and results.builtwith.flat|length %}
                             <div class="row g-2">
                                 {% for tech in results.builtwith.flat %}
@@ -198,75 +207,43 @@
                 </div>
             </div>
             {% endif %}
-
-            
-
             
         </div>
     </div>
 </div>
 
 <style>
-.tech-group-card {
-    transition: all 0.3s ease;
-    border: 1px solid #e9ecef;
-}
-
-.tech-group-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    border-color: var(--primary-color);
-}
-
-.variant-item {
-    border-left: 3px solid var(--primary-color);
-}
-
-.tech-item {
-    transition: all 0.2s ease;
-}
-
-.tech-item:hover {
-    background-color: var(--primary-color) !important;
-    color: white !important;
-}
-
-.result-card {
-    transition: all 0.3s ease;
-}
-
-.result-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-}
-
-.site-item {
-    transition: all 0.2s ease;
-}
-
-.site-item:hover {
-    background-color: var(--success-color) !important;
-    color: white !important;
-}
-
-.probe-result {
-    transition: all 0.3s ease;
-}
-
-.probe-result:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-@media print {
-    .btn, .details-toggle {
-        display: none !important;
-    }
-    
-    .card {
-        border: 1px solid #000 !important;
-        box-shadow: none !important;
-    }
-}
+.tech-group-card { transition: all 0.3s ease; border: 1px solid #e9ecef; }
+.tech-group-card:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); border-color: var(--primary-color); }
+.variant-item { border-left: 3px solid var(--primary-color); }
+.tech-item { transition: all 0.2s ease; }
+.tech-item:hover { background-color: var(--primary-color) !important; color: white !important; }
 </style>
+
+<script>
+(function(){
+  const searchInput = document.getElementById('tech-search');
+  const clearBtn = document.getElementById('tech-clear');
+  const cards = document.querySelectorAll('.tech-card-wrapper');
+  const empty = document.getElementById('tech-empty');
+  if (!searchInput || cards.length === 0) return;
+
+  function applyFilter() {
+    const q = (searchInput.value || '').toLowerCase().trim();
+    let visible = 0;
+    cards.forEach(card => {
+      const name = card.getAttribute('data-name') || '';
+      const cats = card.getAttribute('data-categories') || '';
+      const match = !q || name.includes(q) || cats.includes(q);
+      card.classList.toggle('d-none', !match);
+      if (match) visible++;
+    });
+    if (empty) empty.classList.toggle('d-none', visible !== 0);
+  }
+
+  searchInput.addEventListener('input', applyFilter);
+  if (clearBtn) clearBtn.addEventListener('click', () => { searchInput.value=''; applyFilter(); searchInput.focus(); });
+  applyFilter();
+})();
+</script>
 {% endblock %}
