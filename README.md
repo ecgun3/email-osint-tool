@@ -5,9 +5,11 @@ A lightweight OSINT (Open Source Intelligence) tool for analyzing domains. Built
 ## ✨ Features
 
 - **Domain Analysis**: MX record lookup and provider hints
-- **Technology Stack**: BuiltWith integration with vendor/category grouping and variants
-- **Modern UI**: Centered, clean form; responsive; loading states; details toggles
-- **JSON API**: Simple GET endpoint for automation
+- **Technology Stack**: BuiltWith integration with vendor/category grouping, variants, and live search filtering
+- **Smart Details**: Shows Details toggle only for groups with multiple variants (count > 1)
+- **Live Search**: Built-in search box to filter technologies by name or category
+- **Modern UI**: Centered, clean form; responsive; loading states; expandable details
+- **JSON API**: Simple GET endpoint for automation with pretty-printed output
 - **Tests**: Unit and integration tests (MX + BuiltWith)
 
 ## 🚀 Quick Start
@@ -51,7 +53,7 @@ flask run --host 127.0.0.1 --port 5000
 
 Health checks:
 - `GET /healthz` → `{ "status": "ok" }`
-- `GET /health` → `{ "ok": true }`
+- `GET /health` → `{ "status": "ok" }` (Render compatibility)
 
 ## 🌐 API Usage
 
@@ -93,10 +95,14 @@ GET /analyze?domain=example.com&format=json
 
 ## 🎨 UI/UX
 
-- Centered, single-field domain form
-- Responsive cards for MX and BuiltWith results
-- Grouped technology list with small “Details” toggles for variants/examples
-- Toast-style alerts for empty or invalid input
+- **Centered Domain Form**: Single input field for clean, focused experience
+- **Live Search**: Built-in search box in Technology Stack section to filter results
+- **Smart Details**: 
+  - Groups with count > 1 show count badge and Details toggle
+  - Single-item groups (count = 1) hide Details toggle for cleaner display
+- **Responsive Cards**: MX and BuiltWith results in organized, expandable cards
+- **Category Badges**: Technology categories displayed as colored badges
+- **Variant Examples**: Expandable details show example URLs for technology variants
 
 ## 🧪 Testing
 
@@ -129,15 +135,17 @@ mypy .
 
 ## 📊 BuiltWith Integration
 
-- Groups technologies by vendor/framework
-- Aggregates variants (versions/editions) and example URLs
-- Returns `grouped` data for UI and a flat fallback where available
+- **Smart Grouping**: Groups technologies by vendor/framework
+- **Variant Aggregation**: Combines versions/editions with counts
+- **Live Search**: Filter technologies by name or category in real-time
+- **Example URLs**: Shows sample URLs for each technology variant
+- **Count Logic**: Only shows Details toggle for groups with multiple variants
 
 ## 🚀 Deploy (Render)
 
 - Build: `pip install -r requirements.txt`
 - Start: `gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --worker-class gthread --threads 8 --timeout 120`
-- Health Check Path: `/healthz`
+- Health Check Path: `/health` (Render compatibility)
 - Environment:
 ```bash
 BUILTWITH_API_KEY=your_api_key_here  # required for tech stack
@@ -161,7 +169,7 @@ email-osint-tool/
 ├── templates/
 │   ├── base.html          # Base layout & styles
 │   ├── index.html         # Centered domain form
-│   └── result.html        # MX & BuiltWith results
+│   └── result.html        # MX & BuiltWith results with search
 ├── tests/                 # Test suite
 │   ├── test_app.py
 │   ├── test_simulation.py
@@ -171,10 +179,20 @@ email-osint-tool/
     └── helpers.py         # Helpers (timestamps, domain extraction)
 ```
 
+## 🔍 BuiltWith Search Features
+
+- **Live Filtering**: Search box filters technologies in real-time
+- **Multi-field Search**: Searches both technology names and categories
+- **Clear Function**: Easy reset of search filters
+- **Empty State**: Shows helpful message when no results match search
+- **Responsive Design**: Search box adapts to different screen sizes
+
 ## 🙌 Notes
 
-- Email input, Holehe account enumeration, and SMTP probing were removed to keep the app fast and simple.
-- BuiltWith API key is optional; without it, only MX results are shown.
+- Email input, Holehe account enumeration, and SMTP probing were removed to keep the app fast and simple
+- BuiltWith API key is optional; without it, only MX results are shown
+- Technology groups with single variants automatically hide Details toggle for cleaner UI
+- Search functionality works client-side for instant results
 
 ## 📞 Support
 
