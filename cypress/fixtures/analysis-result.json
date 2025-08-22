@@ -1,0 +1,67 @@
+{
+  "ok": true,
+  "timestamp": "2025-08-22T12:00:00Z",
+  "results": {
+    "resolved_domain": "example.com",
+    "mx": {
+      "mx_records": [
+        {
+          "exchange": "mx1.example.com",
+          "preference": 10
+        },
+        {
+          "exchange": "mx2.example.com",
+          "preference": 20
+        }
+      ],
+      "provider": "Google Workspace",
+      "warnings": []
+    },
+    "builtwith": {
+      "grouped": [
+        {
+          "name": "WordPress",
+          "count": 3,
+          "categories": ["CMS"],
+          "variants": [
+            {
+              "name": "WordPress 6.0",
+              "count": 2,
+              "examples": ["https://example.com", "https://blog.example.com"]
+            },
+            {
+              "name": "WordPress 5.9",
+              "count": 1,
+              "examples": ["https://old.example.com"]
+            }
+          ]
+        },
+        {
+          "name": "Google Analytics",
+          "count": 2,
+          "categories": ["Analytics"],
+          "variants": [
+            {
+              "name": "Google Analytics 4",
+              "count": 2,
+              "examples": ["https://example.com"]
+            }
+          ]
+        },
+        {
+          "name": "jQuery",
+          "count": 1,
+          "categories": ["JavaScript Libraries"],
+          "variants": [
+            {
+              "name": "jQuery 3.6.0",
+              "count": 1,
+              "examples": ["https://example.com"]
+            }
+          ]
+        }
+      ],
+      "elapsedMs": 450
+    }
+  }
+}

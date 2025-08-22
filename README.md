@@ -110,20 +110,133 @@ GET /analyze?domain=example.com&format=json
 
 ## 🧪 Testing
 
-Run all tests:
+### Unit Tests (Pytest)
+
+Run all unit tests:
 ```bash
 pytest
 ```
 
-Coverage:
+Run with verbose output:
+```bash
+pytest -v
+```
+
+Run specific test file:
+```bash
+pytest tests/test_app.py -v
+pytest tests/test_simulation.py -v
+```
+
+Run with coverage:
 ```bash
 pytest --cov=core --cov=app --cov=utils --cov-report=term-missing
 ```
 
-Test layout:
-- `tests/test_app.py` – Flask routes and validation
-- `tests/test_simulation.py` – Core simulation (MX + BuiltWith)
-- `tests/test_integrations_live.py` – Live tests (MX + BuiltWith, opt-in via env)
+Generate HTML coverage report:
+```bash
+pytest --cov=core --cov=app --cov=utils --cov-report=html
+# Open htmlcov/index.html in browser
+```
+
+### Cypress End-to-End Tests
+
+**Prerequisites:**
+- Node.js 16+ and npm 8+
+- Flask app running on localhost:5000
+
+**Install Cypress:**
+```bash
+npm install
+```
+
+**Run Cypress tests:**
+```bash
+# Run all Cypress tests in headless mode
+npm run test:cypress
+
+# Open Cypress Test Runner (interactive)
+npm run test:cypress:open
+
+# Run tests with browser visible
+npm run test:cypress:headed
+```
+
+**Run all tests (Unit + Cypress):**
+```bash
+npm run test:all
+```
+
+### Test Structure
+
+**Unit Tests:**
+- `tests/test_app.py` – Flask routes, validation, error handling
+- `tests/test_simulation.py` – Core workflow (MX + BuiltWith)
+- `tests/test_integrations_live.py` – Live integration tests (optional)
+
+**Cypress Tests:**
+- `cypress/e2e/domain-osint.cy.js` – End-to-end UI testing
+- `cypress/fixtures/analysis-result.json` – Test data
+- `cypress/support/commands.js` – Custom Cypress commands
+
+### Test Categories
+
+**Unit Tests Cover:**
+- ✅ Route handling (`/`, `/healthz`, `/health`, `/analyze`)
+- ✅ Input validation (domain format, empty input)
+- ✅ Response formats (HTML, JSON)
+- ✅ Error handling (400, 404, 500, exceptions)
+- ✅ Core workflow (MX analysis, BuiltWith integration)
+- ✅ Edge cases (timeouts, large results, empty data)
+
+**Cypress Tests Cover:**
+- ✅ UI functionality (forms, buttons, navigation)
+- ✅ User interactions (domain input, search, details toggle)
+- ✅ Responsive design (mobile, tablet, desktop)
+- ✅ BuiltWith search and filtering
+- ✅ Error scenarios and edge cases
+- ✅ Performance metrics
+
+### Running Tests in CI/CD
+
+**GitHub Actions Example:**
+```yaml
+- name: Run Unit Tests
+  run: |
+    pip install -r requirements.txt
+    pytest --cov=core --cov=app --cov=utils --cov-report=xml
+
+- name: Run Cypress Tests
+  run: |
+    npm install
+    npm run test:cypress
+```
+
+**Local Development:**
+```bash
+# Start Flask app in background
+export FLASK_APP=app:app
+export FLASK_DEBUG=1
+flask run --host 127.0.0.1 --port 5000 &
+
+# Run tests
+npm run test:all
+
+# Stop Flask app
+pkill -f "flask run"
+```
+
+### Test Data and Fixtures
+
+**Mock Data:**
+- Unit tests use `unittest.mock` for external dependencies
+- Cypress tests use fixture files for consistent test data
+- BuiltWith API calls are mocked to avoid rate limits
+
+**Live Testing:**
+- Set environment variables for live integration tests
+- Use `tests/test_integrations_live.py` for real API testing
+- Requires valid BuiltWith API key
 
 ## 🔧 Code Quality
 
