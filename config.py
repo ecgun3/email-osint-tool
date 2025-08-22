@@ -31,7 +31,7 @@ class Config:
 	env: str = os.getenv("FLASK_ENV", "production")
 	host: str = os.getenv("HOST", "0.0.0.0")
 	port: int = _get_int("PORT", 5000)
-	templates_auto_reload: bool = _get_bool("TEMPLATES_AUTO_RELOAD", True)
+	templates_auto_reload: bool = _get_bool("TEMPLATES_AUTO_RELOAD", False)
 	# SMTP settings for sending training emails
 	smtp_host: Optional[str] = os.getenv("SMTP_HOST")
 	smtp_port: int = _get_int("SMTP_PORT", 587)

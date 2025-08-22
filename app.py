@@ -138,9 +138,13 @@ def internal_error(error: Any) -> tuple[str, int]:
 
 
 if __name__ == "__main__":
-    logger.info(f"Starting Email OSINT Scanner on {config.host}:{config.port}")
-    app.run(
-        host=config.host,
-        port=config.port,
-        debug=config.debug
-    )
+    # Only run directly if not in production
+    if config.env != "production":
+        logger.info(f"Starting Email OSINT Scanner on {config.host}:{config.port}")
+        app.run(
+            host=config.host,
+            port=config.port,
+            debug=config.debug
+        )
+    else:
+        logger.info("Running in production mode")

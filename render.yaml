@@ -12,9 +12,15 @@ services:
         value: 3.11.0
       - key: FLASK_APP
         value: app:app
+      - key: FLASK_ENV
+        value: production
       - key: FLASK_DEBUG
         value: false
+      - key: FLASK_SECRET_KEY
+        generateValue: true
       - key: REQUEST_TIMEOUT_SECONDS
         value: 30
+      - key: TEMPLATES_AUTO_RELOAD
+        value: false
     autoDeploy: true
     branch: development
