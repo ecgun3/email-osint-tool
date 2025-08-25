@@ -1,3 +1,6 @@
+<img width="1419" height="753" alt="Linkedn foto" src="https://github.com/user-attachments/assets/ddd69c8e-bda7-4f90-af2c-6ec82106032b" />
+
+
 # 🔍 Domain OSINT
 
 A lightweight OSINT (Open Source Intelligence) tool for analyzing domains. Built with **Flask** and a modern, responsive UI.
